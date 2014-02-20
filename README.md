@@ -41,7 +41,7 @@ make
 #### Paired-end adapter trimming
 
 ```
-bin/PEAT paired -1 input_fastq_pair_1 -2 input_fastq_pair_2 -o output -n thread_num -l min_gene_fragment_length
+bin/PEAT paired -1 file -2 file -o output -n num -l min_gene_fragment_length -r 
 ```
 
 - input_fastq_pair_1:The paired_1 input FastQ file.
@@ -49,6 +49,7 @@ bin/PEAT paired -1 input_fastq_pair_1 -2 input_fastq_pair_2 -o output -n thread_
 - output:Prefix for Output file name, stdout by default
 - thread_num:Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
 - min_gene_fragment_length:Minimum gene fragment length, i.e. the fragment length for reverse complement check, 30 bp by default.
+
 
 #### Single-end adapter trimming
 

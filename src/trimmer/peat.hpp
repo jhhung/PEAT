@@ -104,12 +104,10 @@ To do signle-end adapter trimming operation.
 		rcRatio = boost::lexical_cast <double> (reverseCompareMisRatio);
 		geneRatio = boost::lexical_cast <double> (geneCompareMisRatio);
 		adapterRatio = boost::lexical_cast <double> (adapterCompareMisRatio);
-// boost::lexical_cast< typename std::tuple_element<N-1, TUPLE>::type > ( split_temp[N-1] )
 
-std::cerr<<"rc gc ac "<<rcRatio <<'\t'<< geneRatio <<'\t'<< adapterRatio<<'\n';
 
 		FileReader < ParallelTypes::M_T, Fastq, TUPLETYPE, SOURCE_TYPE::IFSTREAM_TYPE > FileReader (read_vec, &result);    
-		ParameterTrait <> i_parameter_trait (minLen, rcRatio, geneRatio, adapterRatio);//reverseCompareMisRatio, geneCompareMisRatio, adapterCompareMisRatio);
+		ParameterTrait <> i_parameter_trait (minLen, rcRatio, geneRatio, adapterRatio);
 		PairEndAdapterTrimmer <ParallelTypes::M_T, Fastq, TUPLETYPE, TrimTrait<std::string, LinearStrMatch <double>, double, double > > PEAT (i_parameter_trait);
 
 		while (true)
