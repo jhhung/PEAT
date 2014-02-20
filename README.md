@@ -41,27 +41,29 @@ make
 #### Paired-end adapter trimming
 
 ```
-bin/PEAT paired -1 file -2 file -o output -n num -l min_gene_fragment_length -r 
+bin/PEAT paired -1 file -2 file -o output -n num -l num -r num -g num -a num
 ```
 
-- input_fastq_pair_1:The paired_1 input FastQ file.
-- input_fastq_pair_2:The paired_2 input FastQ file.
-- output:Prefix for Output file name, stdout by default
-- thread_num:Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
-- min_gene_fragment_length:Minimum gene fragment length, i.e. the fragment length for reverse complement check, 30 bp by default.
-
+- -1 : The paired_1 input FastQ file.
+- -2 : The paired_2 input FastQ file.
+- -o : Prefix for Output file name, stdout by default
+- -n : Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
+- -l : Minimum gene fragment length, i.e. the fragment length for reverse complement check, 30 bp by default
+- -r : Mismatch rate applied in first stage reverse complement scan, 0.3 by default
+- -g : Mismatch rate applied in second stage gene portion check, 0.6 by default
+- -a : Mismatch rate applied in second stage adapter portion check, 0.4 by default
 
 #### Single-end adapter trimming
 
 ```
-bin/PEAT paired -i input_fastq_file -a adapter_seq -q quality_type -o output -n thread_num
+bin/PEAT paired -i file -a string -q string -o output -n num
 ```
 
-- input_fastq_file:The input FastQ file.
-- adapter_seq:The adapter sequence, with minimum length of six characters.
-- quality_type:The quality type.
-- output:Output fastq file, stdout by default
-- thread_num:Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
+- -i : The input FastQ file.
+- -a : The adapter sequence, with minimum length of six characters.
+- -q : The quality type of input FastQ file.
+- -o : Output fastq file, stdout by default
+- -n : Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
 
 ##Citing PEAT
 * not yet
