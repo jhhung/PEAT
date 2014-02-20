@@ -5,7 +5,6 @@
 #define TUPLE_UTILITY
 
 #include "../include/boost_include.hpp"
-#include "../include/gtest_include.hpp"
 #include "../include/stdlib_include.hpp"
 /// @struct TupleUtility<TUPLE, N>  template struct
 /// @brief Include a non-type (int) parameter served as index, and a type parameter indicating output data structure, e.g. in std::tuple format\n Current generic template struct also served as initial and continue conditions for static metaprogramming recursive operation achieved by the current TupleUtility<TUPLE, N> template struct\n Include template member functions of FillTuple and PrintTuple, to respectively handle inserting and printing operations\n Specialized TupleUtility template struct, with its non-type (int) parameter specialized to value of zero\n Current specialized template struct also served as terminal condition for static metaprogramming recursive operation achieved by the current TupleUtility template struct

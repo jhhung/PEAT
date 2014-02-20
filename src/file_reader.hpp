@@ -203,13 +203,15 @@ public:
 	bool Read (std::map< int, std::vector< FORMAT <TUPLETYPE> > >* result, size_t Num = 1)
 	{	
 		size_t Job_count=0;
+		std::vector<size_t> thread_vec;
 		for ( auto itr = 0; itr != this->source_num_; ++itr )
 		{
-			ptr_to_GlobalPool->JobPost ( boost::bind
-				( &FileReader::Read_impl, this, itr, boost::ref( (*result2)[Job_count] ), Num ) );
+			thread_vec.push_back ( ptr_to_GlobalPool->JobPost ( boost::bind
+				( &FileReader::Read_impl, this, itr, boost::ref( (*result2)[Job_count] ), Num ) ) );
 			++Job_count;
 		}
-		ptr_to_GlobalPool->FlushPool();	
+		for (auto& item : thread_vec)
+			ptr_to_GlobalPool->FlushOne (item);//ptr_to_GlobalPool->FlushPool();	
 
 		bool flag = false;
 		std::for_each ( this -> file_handle.begin(), this -> file_handle.end(), [&] ( decltype (*(this->file_handle.begin())) Q)//std::stringstream* Q )
