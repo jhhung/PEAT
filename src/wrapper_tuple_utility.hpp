@@ -4,7 +4,6 @@
 #ifndef WRAPPER_TUPLE_UTILITY
 #define WRAPPER_TUPLE_UTILITY
 #include "../include/boost_include.hpp"
-#include "../include/gtest_include.hpp"
 #include "../include/stdlib_include.hpp"
 #include "tuple_utility.hpp"
 #include "constant_def.hpp"

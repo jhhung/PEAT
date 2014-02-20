@@ -157,7 +157,9 @@ public:
  */
 	void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2)
 	{
-//		return ;
+		if ( (*result2)[0].size()==0 )
+			return;
+
 		this->check_read_length (result2);
 		auto job_count = std::min ( this->parameter_trait.num, std::min ( (*result2)[0].size(), (*result2)[1].size() ) );
 		std::vector<size_t> index_vec;

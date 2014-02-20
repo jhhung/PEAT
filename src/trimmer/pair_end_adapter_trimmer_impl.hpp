@@ -96,11 +96,11 @@ struct ParameterTrait
  * @brief constructor 
  */
 	ParameterTrait (  size_t startsize_in=30
-					, size_t num_in=100000
-					, size_t pool_size_in=1
 					, typename TRAIT::MismatchIndicatorType rc_ind=0.3
 					, typename TRAIT::adapter_compare_scheme_type a_ind=0.6
 					, typename TRAIT::gene_compare_scheme_type g_ind=0.4
+					, size_t num_in=100000
+					, size_t pool_size_in=1
 					)
 		: startsize (startsize_in)
 		, num (num_in)
