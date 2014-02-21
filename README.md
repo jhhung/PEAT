@@ -70,4 +70,5 @@ bin/PEAT paired -i file -a string -q string -o output -n num
 
 ##Contact
 	Jui-Hung Hung <juihunghung@gmail.com>
-	Chou Min-Te <poi5305@gmail.com>
+	Yun-Lung Li <obigbando@gmail.com>
+	Jui-Cheng Weng <johnny231949@gmail.com>
