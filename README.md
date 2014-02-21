@@ -41,7 +41,7 @@ make
 #### Paired-end adapter trimming
 
 ```
-bin/PEAT paired -1 file -2 file -o output -n num -l num -r num -g num -a num
+bin/PEAT paired -1 <file> -2 <file> -o <output> -n <num> -l <num> -r <num> -g <num> -a <num>
 ```
 
 - -1 : The paired_1 input FastQ file.
@@ -56,7 +56,7 @@ bin/PEAT paired -1 file -2 file -o output -n num -l num -r num -g num -a num
 #### Single-end adapter trimming
 
 ```
-bin/PEAT paired -i file -a string -q string -o output -n num
+bin/PEAT single -i <file> -a <string> -q <string> -o <output> -n <num>
 ```
 
 - -i : The input FastQ file.
