@@ -53,7 +53,7 @@ bin/PEAT paired -1 <file> -2 <file> -o <output> -n <num> -l <num> -r <num> -g <n
 - -g : Mismatch rate applied in second stage gene portion check, 0.6 by default
 - -a : Mismatch rate applied in second stage adapter portion check, 0.4 by default
 
-#### Single-end adapter trimming
+#### Single-end adapter trimming [this funciton is adapted from: https://github.com/vsbuffalo/scythe]
 
 ```
 bin/PEAT single -i <file> -a <string> -q <string> -o <output> -n <num>
