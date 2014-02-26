@@ -20,7 +20,7 @@ bin/PEAT_Mac     // for OSX
 ```
 
 Or you can find them in the release tab in this page or at this link:
-https://github.com/jhhung/Tailor/releases
+https://github.com/jhhung/PEAT/releases
 
 You can rename it to "PEAT" for your convinience.
 If unfortunately, none of them works, please see below to build a binary for your box.
