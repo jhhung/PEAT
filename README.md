@@ -2,11 +2,28 @@ PEAT
 =========
 PEAT, a fast and highly accurate adapter-trimming algorithm, designed specifically for paired-end sequencing. PEAT requires no a priori adapter sequence and significantly outperforms other widely used adapter trimmers in both simulated and real life paired-end sequencing libraries. Moreover, in order to process single-end sequencing data, we also provide single-end trimmer in PEAT.
 
-PEAT is released by JHHLAB with additional restriction so that any copyright infringement is not permitted.
+PEAT Tailor is released under GPLv2 with additional restriction so that is only applicable to individuals and non-profits and that any for-profit company must purchase a different license.
 
 ##INSTALL
 
 *Only 64 bits systems are able to compile and run PEAT. 
+
+#### Run the binary directly without installation 
+
+Try the precompiled binaries first, most of the linux systems should be able to run PEAT without any troubles.
+
+Please find the binary that suits your platform:
+
+```
+bin/PEAT_linux  // for centos/redhat/ubuntu/fedara/...
+bin/PEAT_Mac     // for OSX
+```
+
+Or you can find them in the release tab in this page or at this link:
+https://github.com/jhhung/Tailor/releases
+
+You can rename it to "PEAT" for your convinience.
+If unfortunately, none of them works, please see below to build a binary for your box.
 
 #### Install the dependencies
 
