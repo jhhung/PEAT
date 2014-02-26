@@ -19,7 +19,8 @@ namespace single_end
   It takes FastQ format input file, and reports adapter removed FastQ format output file.
   
 >> PEAT single
-    To do signle-end adapter trimming operation.
+    Do signle-end adapter trimming operation, with instruction like: 
+	bin/PEAT_linux single -i test_file/test_paired1.fq -a AGATCGGAAGAGCG -q SANGER
 
 *********************************************************************************
 )";
@@ -37,7 +38,7 @@ namespace single_end
 				("help,h", "display this help message and exit")
 				("input,i", boost::program_options::value<std::string>(&inputFile)->required(), "The input FastQ file.")
 				("adapter,a", boost::program_options::value<std::string>(&adapterSeq)->required(), "The adapter sequence, with minimum length of six characters.")
-				("quality,q", boost::program_options::value<std::string>(&qualityType)->required(), "The quality type.")
+				("quality,q", boost::program_options::value<std::string>(&qualityType)->required(), "The quality type. Type any one of the following quality type indicator: ILLUMINA, PHRED, SANGER, SOLEXA")
 				("output,o", boost::program_options::value<std::string>(&outputFile)->default_value(std::string {"stdout"}), "Output FastQ file, stdout by default ")			
 				("thread,n", boost::program_options::value<int>(&nthreads)->default_value(1), "Number of thread to use; if the number is larger than the core available, it will be adjusted automatically")
 				;
