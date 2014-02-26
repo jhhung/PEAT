@@ -28,7 +28,7 @@ set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package( Boost COMPONENTS date_time filesystem system serialization system filesystem regex thread iostreams program_options)
 find_package( Threads )
 find_package( ZLIB )
-find_package( CURL )
+#find_package( CURL )
 
 if(Boost_FOUND AND Threads_FOUND AND ZLIB_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ) 

@@ -76,17 +76,7 @@ public:
         for (size_t itr=0; itr!=(*result2)[0].size(); ++itr)//( size_t itr=start; itr!=start+dif; ++itr)
         {
 std::cerr<<"processing fastq# "<<itr<<'\r';
-            std::vector< float > qprobs;
-            this->MapQualityToProb ( std::get<3>((*result2)[0][itr].data), qprobs );
-            int best_shift = this->FindBestMatch ( std::get<1>( (*result2)[0][itr].data), qprobs );
-            if ( this->match_flag_ && this->is_con_ )
-            {
-                std::get<1>( ((*result2)[0][itr]).data ).resize (best_shift);
-                std::get<3>( ((*result2)[0][itr]).data ).resize (best_shift);
-                trim_pos.push_back (best_shift);
-            }
-            else
-                trim_pos.push_back (std::get<1>( ((*result2)[0][itr]).data ).size());
+			this->TrimImpl ((*result2)[0][itr], trim_pos);
         }
     }
 };
