@@ -41,7 +41,7 @@ make
 #### Paired-end adapter trimming
 
 ```
-bin/PEAT paired -1 file -2 file -o output -n num -l num -r num -g num -a num
+bin/PEAT paired -1 <file> -2 <file> -o <output> -n <num> -l <num> -r <num> -g <num> -a <num>
 ```
 
 - -1 : The paired_1 input FastQ file.
@@ -53,10 +53,10 @@ bin/PEAT paired -1 file -2 file -o output -n num -l num -r num -g num -a num
 - -g : Mismatch rate applied in second stage gene portion check, 0.6 by default
 - -a : Mismatch rate applied in second stage adapter portion check, 0.4 by default
 
-#### Single-end adapter trimming
+#### Single-end adapter trimming [this funciton is adapted from: https://github.com/vsbuffalo/scythe]
 
 ```
-bin/PEAT paired -i file -a string -q string -o output -n num
+bin/PEAT single -i <file> -a <string> -q <string> -o <output> -n <num>
 ```
 
 - -i : The input FastQ file.
@@ -70,4 +70,5 @@ bin/PEAT paired -i file -a string -q string -o output -n num
 
 ##Contact
 	Jui-Hung Hung <juihunghung@gmail.com>
-	Chou Min-Te <poi5305@gmail.com>
+	Yun-Lung Li <obigbando@gmail.com>
+	Jui-Cheng Weng <johnny231949@gmail.com>
