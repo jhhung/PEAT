@@ -61,7 +61,7 @@ bin/PEAT single -i <file> -a <string> -q <string> -o <output> -n <num>
 
 - -i : The input FastQ file.
 - -a : The adapter sequence, with minimum length of six characters.
-- -q : The quality type of input FastQ file.
+- -q : The quality type of input FastQ file. (Acceptable quality type : 1.PHRED 2.SANGER 3.SOLEXA 4.ILLUMINA)
 - -o : Output fastq file, stdout by default
 - -n : Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
 
