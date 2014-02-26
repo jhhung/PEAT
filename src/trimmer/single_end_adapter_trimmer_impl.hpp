@@ -54,22 +54,18 @@ class SingleEndAdapterTrimmer_impl
 public:
 	SingleEndAdapterTrimmer_impl ( ParameterTraitSeat<QSType> traitin )
 		: quality_score_trait_ (traitin)
-		, ls_ran_ (1.0), ls_con_(1.0)
-		, is_con_ (false)
-		, ps_ran_(0.0), ps_con_(0.0)
-		, match_flag_ (true)
 	{}
 
 	inline void TrimImpl ( FORMAT<TUPLETYPE>& fq, std::vector<int>& trim_pos )
 	{
 		std::vector< float > qprobs; 
 		MapQualityToProb ( std::get<3>(fq.data), qprobs );
-		int best_shift = FindBestMatch ( std::get<1>(fq.data),	qprobs );
-		if ( match_flag_ && is_con_ && best_shift > quality_score_trait_.min_read_length_ )
+		std::tuple <bool, bool, int> best_shift = FindBestMatch ( std::get<1>(fq.data),	qprobs );
+		if ( std::get<0>(best_shift), std::get<1>(best_shift) && std::get<2>(best_shift) > quality_score_trait_.min_read_length_ )
 		{
-			std::get<1>( fq.data ).resize (best_shift);
-			std::get<3>( fq.data ).resize (best_shift);
-			trim_pos.push_back (best_shift);
+			std::get<1>( fq.data ).resize (std::get<2>(best_shift));
+			std::get<3>( fq.data ).resize (std::get<2>(best_shift));
+			trim_pos.push_back (std::get<2>(best_shift));
 		}
 		else
 			trim_pos.push_back (std::get<1>( fq.data ).size());
@@ -77,10 +73,6 @@ public:
 
 protected:
 	ParameterTraitSeat <QSType> quality_score_trait_;
-	double ls_ran_, ls_con_;
-	bool is_con_;
-	double ps_ran_, ps_con_;
-	bool match_flag_;
 
 	inline void MapQualityToProb ( std::string qual_seq, std::vector<float>& probs )
 	{
@@ -103,9 +95,10 @@ protected:
 		}
 	}
 
-	inline int FindBestMatch ( std::string& seq, std::vector< float >& qprobs )
+	inline std::tuple<bool, bool, int> FindBestMatch ( std::string& seq, std::vector< float >& qprobs )
 	{
-		match_flag_ = true; 
+		bool match_flag = true; 
+		bool is_con;
 		std::vector< int > best_vec;
 		std::vector< float > best_qprobs;
 		int best_length=0, best_shift=0, best_score=quality_score_trait_.mismatch_score_*seq.size();//INT_MIN;
@@ -124,12 +117,10 @@ protected:
 			if ( curr_score > best_score )
 			{
 				best_score = curr_score, best_length = current_length, best_shift = shift, best_vec = curr_vec;
-//				best_qprobs.resize (qprobs.size());
-//				std::copy (qprobs.begin()+shift, qprobs.end(), best_qprobs.begin());
 				best_qprobs.clear();
 				std::move (qprobs.begin()+shift, qprobs.end(), std::back_inserter(best_qprobs));
-				is_con_ = GetPosterior ( best_vec, best_qprobs, best_length );
-				if ( is_con_ )
+				is_con = GetPosterior ( best_vec, best_qprobs, best_length );
+				if ( is_con )
 					break;
 				else
 					;
@@ -137,9 +128,9 @@ protected:
 			else
 				;
 		}
-		if (!is_con_)
-			match_flag_ = false;
-		return best_shift;
+		if (!is_con)
+			match_flag = false;
+		return std::make_tuple (match_flag, is_con, best_shift); 
 	}
 
 	inline int GetMatchingScore ( std::string seq, std::string pattern, int n, std::vector<int>& matches )
@@ -163,28 +154,30 @@ protected:
 
 	inline bool GetPosterior ( const std::vector< int > matches, std::vector< float > p_quals, int n ) 
 	{
-		GetLikelihood ( matches, p_quals, n );
+		std::pair <double,double> ls = GetLikelihood ( matches, p_quals, n );
 //		double p_denom = quality_score_trait_.prior_*ls_con_ + (1-quality_score_trait_.prior_)*ls_ran_;	//same result should holds with/without p_denom dividing operation
-		ps_con_ = (ls_con_ * quality_score_trait_.prior_);// /p_denom; 
-		ps_ran_ = (ls_ran_ * (1-quality_score_trait_.prior_)); // /p_denom;
-		return ps_con_ > ps_ran_;
+		double ps_con = (ls.first * quality_score_trait_.prior_);// /p_denom; 
+		double ps_ran = (ls.second * (1-quality_score_trait_.prior_)); // /p_denom;
+		return ps_con > ps_ran;
 	}
 
-	inline void GetLikelihood ( const std::vector< int > matches, std::vector< float > p_quals, int n )
+	inline std::pair<double, double> GetLikelihood ( const std::vector< int > matches, std::vector< float > p_quals, int n )
 	{
-		ls_ran_ = 1.0;	ls_con_ = 1.0;
+		double ls_ran = 1.0;	
+		double ls_con = 1.0;
 		for ( int i = 0; i < n; i++ )
 		{
 			if ( matches[i] == 1 )
 			{
-				ls_ran_ *= quality_score_trait_.p_match_;
-				ls_con_ *= p_quals[i];
+				ls_ran *= quality_score_trait_.p_match_;
+				ls_con *= p_quals[i];
 			}
 			else 
 			{
-				ls_ran_ *= 1 - quality_score_trait_.p_match_;
-				ls_con_ *= 1 - p_quals[i];
+				ls_ran *= 1 - quality_score_trait_.p_match_;
+				ls_con *= 1 - p_quals[i];
 			}
 		}
+		return std::make_pair (ls_con, ls_ran);
 	}
 };
