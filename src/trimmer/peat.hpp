@@ -108,7 +108,7 @@ removed FastQ format output files (dual files).
 
 
 		FileReader < ParallelTypes::M_T, Fastq, TUPLETYPE, SOURCE_TYPE::IFSTREAM_TYPE > FileReader (read_vec, &result);    
-		ParameterTrait <> i_parameter_trait (minLen, rcRatio, geneRatio, adapterRatio);
+		ParameterTrait <> i_parameter_trait (minLen, rcRatio, geneRatio, adapterRatio, 100000, nthreads);
 		PairEndAdapterTrimmer <ParallelTypes::M_T, Fastq, TUPLETYPE, TrimTrait<std::string, LinearStrMatch <double>, double, double > > PEAT (i_parameter_trait);
 
 		while (true)

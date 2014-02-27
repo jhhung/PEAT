@@ -150,7 +150,9 @@ public:
 				i_parameter_trait )
 		, ptr_to_GlobalPool_peat_ (tp)
 		, trim_position ( std::make_shared<std::map < int, std::vector<size_t> > > () ) 
-	{}
+	{
+		ptr_to_GlobalPool_peat_->ChangePoolSize(i_parameter_trait.pool_size);
+	}
 
 /**
  * @brief main interface for conducting trimming operation.  

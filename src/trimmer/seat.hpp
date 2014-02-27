@@ -100,7 +100,7 @@ namespace single_end
 		std::map<int, std::vector< Fastq<TUPLETYPE> > > result;
 		FileReader < ParallelTypes::NORMAL, Fastq, TUPLETYPE, SOURCE_TYPE::IFSTREAM_TYPE > FileReader (read_vec, &result);
 
-		ParameterTraitSeat parameter_trait (adapterSeq, qualityType);
+		ParameterTraitSeat parameter_trait (adapterSeq, qualityType, nthreads);
 		SingleEndAdapterTrimmer <ParallelTypes::M_T, Fastq, TUPLETYPE> SEAT (parameter_trait);
 		std::vector<int> trim_pos;
 

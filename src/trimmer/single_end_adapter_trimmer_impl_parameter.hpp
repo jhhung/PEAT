@@ -13,12 +13,15 @@ struct ParameterTraitSeat
 	double prior_, p_match_;
 	int min_l_, match_score_, mismatch_score_;
 	int min_read_length_;
-
+	int threads_;
+	
 	ParameterTraitSeat (std::string adapterseq,
 					std::string qtype,
+					int threads = 1,
 					double prior=0.05, double pmatch=0.25, 
 					int minlength=5, int matchscore=1, int mismatchscore=-1, int min_read_length=15)
 		: adapter_seq_ (adapterseq)
+		, threads_ (threads)
 		, prior_ (prior)
 		, p_match_ (pmatch)
 		, min_l_ (minlength)

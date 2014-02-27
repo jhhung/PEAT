@@ -30,7 +30,9 @@ public:
 		: SingleEndAdapterTrimmer_impl < FORMAT, TUPLETYPE > ( traitin )
 		, ptr_to_GlobalPool_peat_ (tp)
 		, trim_position ( std::make_shared<std::map < int, std::vector<size_t> > > () ) 
-	{}
+	{
+		ptr_to_GlobalPool_peat_ -> ChangePoolSize (traitin.threads_);
+	}
 
 	inline void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, int nthreads, std::vector<int>& trim_pos, int map_index=0)
 	{
