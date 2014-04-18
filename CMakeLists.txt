@@ -22,7 +22,7 @@ endif ()
 include (${CMAKE_ROOT}/Modules/FindBoost.cmake)
 
 #boost
-set(Boost_USE_STATIC_LIBS        ON)
+set(Boost_USE_STATIC_LIBS        OFF)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package( Boost COMPONENTS date_time filesystem system serialization system filesystem regex thread iostreams program_options)
