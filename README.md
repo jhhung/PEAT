@@ -85,6 +85,10 @@ bin/PEAT single -i <file> -a <string> -q <string> -o <output> -n <num>
 ##Citing PEAT
 * not yet
 
+##Download the Simulation Datasets
+
+- http://www.jhhlab.tw/Simulation_Datasets/
+
 ##Contact
 	Jui-Hung Hung <juihunghung@gmail.com>
 	Yun-Lung Li <obigbando@gmail.com>
