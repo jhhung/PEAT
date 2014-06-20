@@ -66,7 +66,7 @@ bin/PEAT paired -1 <file> -2 <file> -o <output> -n <num> -l <num> -r <num> -g <n
 - -o : Prefix for Output file name, stdout by default
 - -n : Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
 - -l : Minimum gene fragment length, i.e. the fragment length for reverse complement check, 30 bp by default
-- -r : Mismatch rate applied in first stage reverse complement scan, 0.3 by default
+- -r : Mismatch rate applied in first stage reverse complement scan, 0.4 by default
 - -g : Mismatch rate applied in second stage gene portion check, 0.6 by default
 - -a : Mismatch rate applied in second stage adapter portion check, 0.4 by default
 
