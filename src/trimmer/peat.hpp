@@ -48,7 +48,7 @@ removed FastQ format output files (dual files).
 				("output,o", boost::program_options::value<std::string>(&outputFile)->default_value(std::string {"stdout"}), "Prefix for Output file name, stdout by default ")
 				("thread,n", boost::program_options::value<int>(&nthreads)->default_value(1), "Number of thread to use; if the number is larger than the core available, it will be adjusted automatically")
 				("len,l", boost::program_options::value<int>(&minLen)->default_value(30), "Minimum gene fragment length, i.e. the fragment length for reverse complement check, 30 bp by default")
-				("reverse_mis_rate,r", boost::program_options::value<std::string>(&reverseCompareMisRatio)->default_value("0.3"), "Mismatch rate applied in first stage reverse complement scan, 0.3 by default")
+				("reverse_mis_rate,r", boost::program_options::value<std::string>(&reverseCompareMisRatio)->default_value("0.4"), "Mismatch rate applied in first stage reverse complement scan, 0.4 by default")
 				("gene_mis_rate,g", boost::program_options::value<std::string>(&geneCompareMisRatio)->default_value("0.6"), "Mismatch rate applied in second stage gene portion check, 0.6 by default")
 				("adapter_mis_rate,a", boost::program_options::value<std::string>(&adapterCompareMisRatio)->default_value("0.4"), "Mismatch rate applied in second stage adapter portion check, 0.4 by default")
 				;
