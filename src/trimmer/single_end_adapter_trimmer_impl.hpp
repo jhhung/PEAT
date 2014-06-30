@@ -16,7 +16,7 @@ struct ParameterTraitSeat
 	int min_read_length_;
 
 	ParameterTraitSeat (std::string adapterseq="AGATCGGAAGAGCG", 
-					double prior=0.05, double pmatch=0.25, 
+					double prior=0.3, double pmatch=0.25, 
 					int minlength=5, int matchscore=1, int mismatchscore=-1, int min_read_length=15)
 		: QS_index_ (QSType)
 		, adapter_seq_ (adapterseq)
