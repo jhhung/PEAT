@@ -83,7 +83,7 @@ bin/PEAT single -i <file> -a <string> -q <string> -o <output> -n <num>
 - -n : Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
 
 ##Citing PEAT
-* not yet
+Li, Y.-L., Weng, J.-C., Hsiao, C.-C., Chou, M.-T., Tseng, C.-W., & Hung, J.-H. (2015). PEAT: an intelligent and efficient paired-end sequencing adapter trimming algorithm. BMC Bioinformatics, 16(Suppl 1), S2. doi:10.1186/1471-2105-16-S1-S2
 
 ##Download the Simulation Datasets
 
