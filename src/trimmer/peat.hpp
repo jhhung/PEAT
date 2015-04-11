@@ -21,7 +21,7 @@ It takes paired-end FastQ format input files (dual files), and reports adapter
 removed FastQ format output files (dual files).
 
 >> PEAT paired
-    Do single-end adapter trimming operation with instruction like:
+    Do paired-end adapter trimming operation with instruction like:
     bin/PEAT_linux paired -1 test_file/test_paired1.fq -2 test_file/test_paired2.fq 
 
 *********************************************************************************
