@@ -19,7 +19,7 @@ namespace single_end
   It takes FastQ format input file, and reports adapter removed FastQ format output file.
   
 >> PEAT single
-    Do signle-end adapter trimming operation, with instruction like: 
+    Do single-end adapter trimming operation, with instruction like: 
 	bin/PEAT_linux single -i test_file/test_paired1.fq -a AGATCGGAAGAGCG -q SANGER
 
 *********************************************************************************
