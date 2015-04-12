@@ -30,6 +30,8 @@ removed FastQ format output files (dual files).
 		std::string inputFile_1;
 		std::string inputFile_2;
 		std::string outputFile;
+		std::string outputFile_1;
+		std::string outputFile_2;
 		int nthreads;
 		int minLen;
 		std::string reverseCompareMisRatio;
@@ -45,7 +47,9 @@ removed FastQ format output files (dual files).
 				("help,h", "display this help message and exit")
 				("input1,1", boost::program_options::value<std::string>(&inputFile_1)->required(), "The paired_1 input FastQ file.")
 				("input2,2", boost::program_options::value<std::string>(&inputFile_2)->required(), "The paired_2 input FastQ file.")
-				("output,o", boost::program_options::value<std::string>(&outputFile)->default_value(std::string {"stdout"}), "Prefix for Output file name, stdout by default ")
+				("output,o", boost::program_options::value<std::string>(&outputFile)->default_value(std::string {"stdout"}), "Prefix for Output file name, stdout by default. If you choose this option, you couldn't use --output_1 and --output_2")
+				("output_1", boost::program_options::value<std::string>(&outputFile_1)->default_value(std::string {"stdout"}), "Prefix for Output file part1 name, stdout by default ")
+				("output_2", boost::program_options::value<std::string>(&outputFile_2)->default_value(std::string {"stdout"}), "Prefix for Output file part2 name, stdout by default ")
 				("thread,n", boost::program_options::value<int>(&nthreads)->default_value(1), "Number of thread to use; if the number is larger than the core available, it will be adjusted automatically")
 				("len,l", boost::program_options::value<int>(&minLen)->default_value(30), "Minimum gene fragment length, i.e. the fragment length for reverse complement check, 30 bp by default")
 				("reverse_mis_rate,r", boost::program_options::value<std::string>(&reverseCompareMisRatio)->default_value("0.4"), "Mismatch rate applied in first stage reverse complement scan, 0.4 by default")
@@ -78,15 +82,35 @@ removed FastQ format output files (dual files).
 		/** check output **/
 		std::ostream* out{nullptr};
 		std::ostream* out_2{nullptr};
-		if (outputFile == "stdout" || outputFile == "-") 
+		if ( ( outputFile == "stdout" && outputFile_1 == "stdout" && outputFile_2 == "stdout" ) || ( outputFile_1 == "-" && outputFile_2 == "-" ) ) 
 			out = &std::cout;
-		else 
+		else if ( outputFile != "stdout" && ( outputFile_1 != "stdout" || outputFile_2 != "stdout" ) )  
+		{
+			std::cerr << "Error: cannot creat ouput file.\nThe options --output or [ --output_1, output_2 ] only is allowed to excute one.\nExiting..." << std::endl;
+			exit (1);
+		}
+		else if ( ( outputFile_1 != "stdout" && outputFile_2 == "stdout" ) || ( outputFile_1 == "stdout" && outputFile_2 != "stdout" ) )
+		{
+			std::cerr << "Error: cannot creat ouput file.\nThe options --output_1 and --output_2 have to be provied simultaneously.\nExiting..." << std::endl;
+			exit (1);
+		}
+		else if ( outputFile != "stdout" )  
 		{
 			out = new std::ofstream {outputFile+"_paired1.fq"};
 			out_2 = new std::ofstream {outputFile+"_paired2.fq"};
 			if (!*out || !*out_2) 
 			{
 				std::cerr << "Error: cannot creat output file " << outputFile+"_paired1 and " <<outputFile+"_paired2" << ".\nPlease double check.\nExiting..." << std::endl;
+				exit (1);
+			}
+		}
+		else
+		{
+			out = new std::ofstream {outputFile_1+"_paired1.fq"};
+			out_2 = new std::ofstream {outputFile_2+"_paired2.fq"};
+			if (!*out || !*out_2) 
+			{
+				std::cerr << "Error: cannot creat output file " << outputFile_1+"_paired1 and " <<outputFile_2+"_paired2" << ".\nPlease double check.\nExiting..." << std::endl;
 				exit (1);
 			}
 		}
