@@ -32,6 +32,19 @@ public:
 		, trim_position ( std::make_shared<std::map < int, std::vector<size_t> > > () ) 
 	{
 		ptr_to_GlobalPool_peat_ -> ChangePoolSize (traitin.threads_);
+		std::cerr << "the pool_size is changed.\n";
+	}
+
+	inline void QTrim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, int nthreads, int map_index=0 )
+	{
+		Job_distributer_pipeline <ParallelTypes::M_T, std::vector<FORMAT<TUPLETYPE> >, std::vector<int> > jd;
+		jd.distribute_jobs( (*result2)[map_index], nthreads,
+		[this] (FORMAT<TUPLETYPE>& format_data, std::vector<int>& out_buffer )
+		{
+			this->QTrimImpl (format_data, out_buffer );
+		}
+		);
+		
 	}
 
 	inline void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, int nthreads, std::vector<int>& trim_pos, int map_index=0)
@@ -47,6 +60,11 @@ public:
 		}
 		);
 	}
+
+	void Verbose ( bool flag, uint32_t count_reads, int& flag_type )
+	{
+		this->VerboseImpl ( flag, count_reads, flag_type );
+	}   
 };
 
 #endif

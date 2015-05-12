@@ -30,6 +30,7 @@ namespace single_end
 		std::string qualityType {};
 		std::string outputFile {};
 		int nthreads {};
+		bool verboses {false};
 		boost::program_options::options_description opts {usage};
 
 		try 
@@ -41,10 +42,15 @@ namespace single_end
 				("quality,q", boost::program_options::value<std::string>(&qualityType)->required(), "The quality type. Type any one of the following quality type indicator: ILLUMINA, PHRED, SANGER, SOLEXA")
 				("output,o", boost::program_options::value<std::string>(&outputFile)->default_value(std::string {"stdout"}), "Output FastQ file, stdout by default ")			
 				("thread,n", boost::program_options::value<int>(&nthreads)->default_value(1), "Number of thread to use; if the number is larger than the core available, it will be adjusted automatically")
+				("verbose", "Output running process by stderr ")
 				;
 			boost::program_options::variables_map vm;
 			boost::program_options::store (boost::program_options::parse_command_line(argc, argv, opts), vm);
 			boost::program_options::notify(vm);
+			
+			/** check the verbose option **/
+			if ( vm.count("verbose") )
+				verboses = true;
 		} 
 		catch (std::exception& e) 
 		{
@@ -94,6 +100,7 @@ namespace single_end
 			std::cerr << "Warning: the number of threads set (" << nthreads << ") is larger than the number of cores available (" << nCore << ") in this machine.\nSo reset -n=" << nCore << std::endl;
 			nthreads = nCore;
 		}
+		
 
 		typedef std::tuple<std::string, std::string, std::string, std::string> TUPLETYPE;
 		std::vector<std::string> read_vec ({inputFile});
@@ -103,15 +110,30 @@ namespace single_end
 		ParameterTraitSeat parameter_trait (adapterSeq, qualityType, nthreads);
 		SingleEndAdapterTrimmer <ParallelTypes::M_T, Fastq, TUPLETYPE> SEAT (parameter_trait);
 		std::vector<int> trim_pos;
-
+		int Q_read_number;
+		uint32_t count_reads(0);
+		int flag_type (0);
+//		while (true)
+//		{
+//			bool eof = FileReader.Read (&result, 100000);
+//			SEAT.QTrim ( &result, nthreads );
+//			if (eof)
+//				break;
+//		}
 		while (true)	
 		{
 			bool eof = FileReader.Read (&result, 100000);
 			SEAT.Trim (&result, nthreads, trim_pos);
 			for (auto& Q : result.begin()->second)
 				(*out)<<Q;
+			count_reads += result[0].size();
+			SEAT.Verbose( verboses, count_reads, flag_type );
 			if (eof)
+			{
+				flag_type = 2;
+				SEAT.Verbose( verboses, count_reads, flag_type );
 				break;
+			}
 		}
 
 		if (out != &std::cout) 

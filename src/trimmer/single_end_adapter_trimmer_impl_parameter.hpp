@@ -14,12 +14,14 @@ struct ParameterTraitSeat
 	int min_l_, match_score_, mismatch_score_;
 	int min_read_length_;
 	int threads_;
+	int q_min_read_length_;
+	float q_threshold_;
 	
 	ParameterTraitSeat (std::string adapterseq,
 					std::string qtype,
 					int threads = 1,
 					double prior=0.05, double pmatch=0.25, 
-					int minlength=5, int matchscore=1, int mismatchscore=-1, int min_read_length=15)
+					int minlength=5, int matchscore=1, int mismatchscore=-1, int min_read_length=15, int q_min_read_length = 15, float q_threshold = 30 )
 		: adapter_seq_ (adapterseq)
 		, threads_ (threads)
 		, prior_ (prior)
@@ -28,6 +30,8 @@ struct ParameterTraitSeat
 		, match_score_ (matchscore)
 		, mismatch_score_ (mismatchscore)
 		, min_read_length_ (min_read_length)
+		, q_min_read_length_ (q_min_read_length)
+		, q_threshold_ (q_threshold)
 	{
 		if (qtype=="PHRED")
 			QS_index_ = QualityScoreType::PHRED;
@@ -66,6 +70,24 @@ public:
 		: quality_score_trait_ (traitin)
 	{}
 
+	inline void QTrimImpl ( FORMAT<TUPLETYPE>& fq, float threshold = 30.0, size_t min_read_length = 10 )
+	{
+		std::vector< float > qscores;
+		MapQualityToScore ( std::get<3>(fq.data), qscores );
+		float average_qscore ( 0 );
+		while ( std::get<1>(fq.data).size() > quality_score_trait_.q_min_read_length_ )
+		{
+			calculate_average_qscore ( qscores, average_qscore );
+			if ( average_qscore < quality_score_trait_.q_threshold_ )
+			{
+				std::get<1>(fq.data).resize ( std::get<1>(fq.data).size() -1 );  
+				std::get<3>(fq.data).resize ( std::get<3>(fq.data).size() -1 );  
+			}
+			else
+				break;
+		}
+	}
+
 	inline void TrimImpl ( FORMAT<TUPLETYPE>& fq, std::vector<int>& trim_pos )
 	{
 		std::vector< float > qprobs; 
@@ -83,6 +105,35 @@ public:
 
 protected:
 	ParameterTraitSeat quality_score_trait_;
+
+	inline void MapQualityToScore ( std::string qual_seq, std::vector<float>& scores )
+	{
+		int length = qual_seq.size(), quality_word;
+		for ( int index = 0; index < length; ++index )
+		{
+			quality_word = (char) qual_seq[index]-quality_score_trait_.shift_value_;
+			if ( quality_word < quality_score_trait_.min_value_ || quality_word > quality_score_trait_.max_value_ )
+			{
+				std::cerr << "Base quality out of range for specifed quality type." << std::endl;
+				exit(1); 
+			}
+			switch (quality_score_trait_.QS_index_)
+			{
+				case QualityScoreType::SOLEXA: 
+					scores.push_back( float(quality_word) ); break;
+				case QualityScoreType::ILLUMINA: case QualityScoreType::SANGER: case QualityScoreType::PHRED:
+					scores.push_back( float(quality_word) ); break;
+			}
+		}
+	}
+
+	inline void calculate_average_qscore ( std::vector<float>& qscores, float average_qscore )
+	{
+		float sum ( 0 );
+		for ( auto&	element: qscores )
+			sum += element;
+		average_qscore = float( sum/qscores.size() );
+	}	
 
 	inline void MapQualityToProb ( std::string qual_seq, std::vector<float>& probs )
 	{
@@ -189,5 +240,27 @@ protected:
 			}
 		}
 		return std::make_pair (ls_con, ls_ran);
+	}
+	
+	inline void VerboseImpl ( bool flag, uint32_t& read_count, int& flag_type )
+	{
+		if ( flag == true )
+		{
+			if ( flag_type == 0 )
+			{	
+				std::cerr << "=========================================================\n";
+				std::cerr << "=====================Program process=====================\n";
+				std::cerr << "The number of reads that are already trimmed:\n";
+				++flag_type;
+			}
+			if ( flag_type == 2 )
+			{
+				std::cerr << "\n================The program is over.===================\n";
+			}
+			else if ( flag_type == 1 )
+				std::cerr << read_count << "\r";
+			else
+				;	
+		}
 	}
 };
