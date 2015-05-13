@@ -431,5 +431,27 @@ protected:
 			{	StrResult.push_back ( complement_map[Q] ) ; });
 		std::reverse (StrResult.begin(), StrResult.end());
 	}
+
+	inline void VerboseImpl ( bool flag, uint32_t& read_count, int& flag_type )
+	{
+		if ( flag == true )
+		{
+			if ( flag_type == 0 )
+			{	
+				std::cerr << "=========================================================\n";
+				std::cerr << "=====================Program process=====================\n";
+				std::cerr << "The number of reads that are already trimmed:\n";
+				++flag_type;
+			}
+			if ( flag_type == 2 )
+			{
+				std::cerr << "\n================The program is over.=====================\n";
+			}
+			else if ( flag_type == 1 )
+				std::cerr << read_count << "\r";
+			else
+				;	
+		}
+	}
 };
 #endif

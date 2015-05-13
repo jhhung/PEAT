@@ -185,6 +185,13 @@ public:
 		else
 			this->TrimImpl (result2, (*trim_position)[0], 0, job_count);
 	}
+
+	void Verbose ( bool flag, uint32_t count_reads, int& flag_type )
+	{
+		this->VerboseImpl ( flag, count_reads, flag_type );
+	}   
+	
+	
 };
 
 #endif

@@ -38,6 +38,7 @@ removed FastQ format output files (dual files).
 		std::string geneCompareMisRatio;
 		std::string adapterCompareMisRatio;
 		double rcRatio, geneRatio, adapterRatio;
+		bool verboses {false};
 
 		boost::program_options::options_description opts {usage};
 
@@ -55,10 +56,15 @@ removed FastQ format output files (dual files).
 				("reverse_mis_rate,r", boost::program_options::value<std::string>(&reverseCompareMisRatio)->default_value("0.4"), "Mismatch rate applied in first stage reverse complement scan, 0.4 by default")
 				("gene_mis_rate,g", boost::program_options::value<std::string>(&geneCompareMisRatio)->default_value("0.6"), "Mismatch rate applied in second stage gene portion check, 0.6 by default")
 				("adapter_mis_rate,a", boost::program_options::value<std::string>(&adapterCompareMisRatio)->default_value("0.4"), "Mismatch rate applied in second stage adapter portion check, 0.4 by default")
+				("verbose", "Output running process by stderr ")
 				;
 			boost::program_options::variables_map vm;
 			boost::program_options::store (boost::program_options::parse_command_line(argc, argv, opts), vm);
 			boost::program_options::notify(vm);
+
+			/** check the verbose option **/
+			if ( vm.count("verbose") )
+				verboses = true;
 		} 
 		catch (std::exception& e) 
 		{
@@ -134,11 +140,15 @@ removed FastQ format output files (dual files).
 		FileReader < ParallelTypes::M_T, Fastq, TUPLETYPE, SOURCE_TYPE::IFSTREAM_TYPE > FileReader (read_vec, &result);    
 		ParameterTrait <> i_parameter_trait (minLen, rcRatio, geneRatio, adapterRatio, 100000, nthreads);
 		PairEndAdapterTrimmer <ParallelTypes::M_T, Fastq, TUPLETYPE, TrimTrait<std::string, LinearStrMatch <double>, double, double > > PEAT (i_parameter_trait);
+		uint32_t count_reads(0);
+		int flag_type (0);
 
 		while (true)
 		{
 			bool eof = FileReader.Read (&result, 100000);
 			PEAT.Trim (&result);
+			count_reads += result[0].size();
+			PEAT.Verbose( verboses, count_reads, flag_type );
 
 			if (out != &std::cout)
 			{
@@ -160,7 +170,11 @@ removed FastQ format output files (dual files).
 			}
 
 			if (eof)
+			{
+				flag_type = 2;
+				PEAT.Verbose( verboses, count_reads, flag_type );
 				break;
+			}
 		}
 
 		if (out != &std::cout) 
