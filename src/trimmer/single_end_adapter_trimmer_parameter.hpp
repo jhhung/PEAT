@@ -32,7 +32,6 @@ public:
 		, trim_position ( std::make_shared<std::map < int, std::vector<size_t> > > () ) 
 	{
 		ptr_to_GlobalPool_peat_ -> ChangePoolSize (traitin.threads_);
-		std::cerr << "the pool_size is changed.\n";
 	}
 
 	inline void QTrim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, int nthreads, int map_index=0 )
