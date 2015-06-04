@@ -101,6 +101,18 @@ namespace single_end
 			nthreads = nCore;
 		}
 		
+		//**open the report.txt
+		std::ostream* out_report{nullptr}; 
+		if (outputFile == "stdout" || outputFile == "-") 
+			out_report = &std::cout;
+		else
+		{
+			std::string temp_str {outputFile};
+			std::vector<std::string> temp;
+			boost::split ( temp, temp_str, boost::is_any_of ( "." ) );
+			std::string ReportFile {temp[0] + "_report.txt" };
+			out_report = new std::ofstream {ReportFile};
+		}
 
 		typedef std::tuple<std::string, std::string, std::string, std::string> TUPLETYPE;
 		std::vector<std::string> read_vec ({inputFile});
@@ -112,6 +124,8 @@ namespace single_end
 		std::vector<int> trim_pos;
 		int Q_read_number;
 		uint32_t count_reads(0);
+		uint32_t sum_reads(0);
+		uint32_t sum_length(0);
 		int flag_type (0);
 //		while (true)
 //		{
@@ -123,7 +137,9 @@ namespace single_end
 		while (true)	
 		{
 			bool eof = FileReader.Read (&result, 100000);
+//			std::cerr << "the trim_pos in seat.hpp:" << trim_pos.size() << "\n";
 			SEAT.Trim (&result, nthreads, trim_pos);
+			SEAT.Sum (&result, sum_length, sum_reads);
 			for (auto& Q : result.begin()->second)
 				(*out)<<Q;
 			count_reads += result[0].size();
@@ -141,6 +157,11 @@ namespace single_end
 			static_cast<std::ofstream*>(out)-> close ();
 			delete out;
 		}
+
+		SEAT.Summary ( sum_length, sum_reads, adapterSeq, out_report );
+		static_cast<std::ofstream*>(out_report)-> close ();
+		delete out_report;
+
 		return 0;
 	}
 }

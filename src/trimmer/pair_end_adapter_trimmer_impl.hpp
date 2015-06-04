@@ -453,5 +453,15 @@ protected:
 				;	
 		}
 	}
+
+	inline void SumImpl ( std::vector< FORMAT<TUPLETYPE> >& result, uint32_t& sum_read_lengths, uint32_t& sum_read_counts )
+	{
+		for ( auto& fq: result )
+		{
+			sum_read_lengths+= std::get<1>( fq.data ).size();
+			++sum_read_counts;
+		}
+	}	
+
 };
 #endif

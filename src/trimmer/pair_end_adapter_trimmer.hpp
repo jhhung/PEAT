@@ -159,6 +159,16 @@ public:
  */
 	void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2)
 	{
+/*
+		Job_distributer_pipeline <ParallelTypes::M_T, std::vector<FORMAT<TUPLETYPE> >, std::vector<int> > jd;
+		jd.distribute_jobs( (*result2)[map_index], trim_pos, nthreads,
+		[this] (FORMAT<TUPLETYPE>& format_data, std::vector<int>& out_buffer)
+		{
+			this->TrimImpl (format_data, out_buffer);
+		}
+		);
+*/
+
 		if ( (*result2)[0].size()==0 )
 			return;
 
@@ -184,14 +194,26 @@ public:
 		}   
 		else
 			this->TrimImpl (result2, (*trim_position)[0], 0, job_count);
-	}
 
+	}
 	void Verbose ( bool flag, uint32_t count_reads, int& flag_type )
 	{
 		this->VerboseImpl ( flag, count_reads, flag_type );
-	}   
+	}
+
+	void Sum ( std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result, uint32_t& sum_read_lengths, uint32_t& sum_read_counts, int map_index=0 )
+	{
+		this-> SumImpl( (*result)[ map_index ], sum_read_lengths, sum_read_counts );
+		this-> SumImpl( (*result)[ map_index + 1 ], sum_read_lengths, sum_read_counts );
+	}	
 	
-	
+	void Summary ( uint32_t sum_length, uint32_t sum_reads, std::ostream* out_report )
+	{                                                                                                              
+        double average_length ( double(sum_length)/double(sum_reads) );
+		(*out_report) << "PEAT report\nMode:\tpaired-end";
+		(*out_report) << "\nTotal number of reads:\t" << sum_reads;
+		(*out_report) << "\nAverage length of reads after trimming:\t" << average_length;
+	}                                                                                                              
 };
 
 #endif

@@ -255,7 +255,7 @@ protected:
 			}
 			if ( flag_type == 2 )
 			{
-				std::cerr << "\n================The program is over.===================\n";
+				std::cerr << "\n==================The program is over.===================\n";
 			}
 			else if ( flag_type == 1 )
 				std::cerr << read_count << "\r";
@@ -263,4 +263,14 @@ protected:
 				;	
 		}
 	}
+	
+	inline void SumImpl ( std::vector< FORMAT<TUPLETYPE> >& result, uint32_t& sum_read_lengths, uint32_t& sum_read_counts )
+	{
+		for ( auto& fq: result )
+		{
+			sum_read_lengths+= std::get<1>( fq.data ).size();
+			++sum_read_counts;
+		}
+	}	
+
 };

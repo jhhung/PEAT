@@ -129,6 +129,24 @@ removed FastQ format output files (dual files).
 			nthreads = nCore;
 		}
 
+		//**open the report.txt
+		std::ostream* out_report{nullptr}; 
+		std::string temp_str;
+		if ( ( outputFile == "stdout" && outputFile_1 == "stdout" && outputFile_2 == "stdout" ) || ( outputFile_1 == "-" && outputFile_2 == "-" ) ) 
+			out_report = &std::cout;
+		else if ( outputFile != "stdout" && outputFile_1 == "stdout" )
+		{
+			temp_str = outputFile;
+		}
+		else
+		{
+			temp_str = outputFile_1;
+		}
+		std::vector<std::string> temp;
+		boost::split ( temp, temp_str, boost::is_any_of ( "." ) );
+		std::string ReportFile {temp[0] + "_report.txt" };
+		out_report = new std::ofstream {ReportFile};
+		
 		typedef std::tuple<std::string, std::string, std::string, std::string> TUPLETYPE;
 		std::vector<std::string> read_vec ({ inputFile_1, inputFile_2 });
 		std::map<int, std::vector< Fastq<TUPLETYPE> > > result;
@@ -141,12 +159,16 @@ removed FastQ format output files (dual files).
 		ParameterTrait <> i_parameter_trait (minLen, rcRatio, geneRatio, adapterRatio, 100000, nthreads);
 		PairEndAdapterTrimmer <ParallelTypes::M_T, Fastq, TUPLETYPE, TrimTrait<std::string, LinearStrMatch <double>, double, double > > PEAT (i_parameter_trait);
 		uint32_t count_reads(0);
+		uint32_t sum_reads(0);
+		uint32_t sum_length(0);
 		int flag_type (0);
 
 		while (true)
 		{
 			bool eof = FileReader.Read (&result, 100000);
 			PEAT.Trim (&result);
+			PEAT.Sum (&result, sum_length, sum_reads);
+
 			count_reads += result[0].size();
 			PEAT.Verbose( verboses, count_reads, flag_type );
 
@@ -183,6 +205,11 @@ removed FastQ format output files (dual files).
 			static_cast<std::ofstream*>(out_2)-> close ();
 			delete out, out_2;
 		}
+
+		PEAT.Summary ( sum_length, sum_reads, out_report );
+		static_cast<std::ofstream*>(out_report)-> close ();
+		delete out_report;
+
 		return 0;
 	}
 }

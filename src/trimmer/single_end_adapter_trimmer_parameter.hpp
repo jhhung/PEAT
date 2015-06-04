@@ -43,7 +43,6 @@ public:
 			this->QTrimImpl (format_data, out_buffer );
 		}
 		);
-		
 	}
 
 	inline void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, int nthreads, std::vector<int>& trim_pos, int map_index=0)
@@ -64,6 +63,20 @@ public:
 	{
 		this->VerboseImpl ( flag, count_reads, flag_type );
 	}   
+	
+	void Sum ( std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result, uint32_t& sum_read_lengths, uint32_t& sum_read_counts, int map_index=0 )
+	{
+		this-> SumImpl( (*result)[ map_index ], sum_read_lengths, sum_read_counts );
+	}
+
+	void Summary ( uint32_t sum_length, uint32_t sum_reads, std::string adapterSeq, std::ostream* out_report )
+	{                                                                                                              
+        double average_length ( double(sum_length)/double(sum_reads) );
+		(*out_report) << "PEAT report\nMode:\tsingle-end";
+		(*out_report) << "\nTotal number of reads:\t" << sum_reads;
+		(*out_report) << "\nAverage length of reads after trimming:\t" << average_length;
+		(*out_report) << "\nAdapter sequence (user applied):\t" << adapterSeq;
+	}                                                                                                              
 };
 
 #endif
