@@ -189,6 +189,7 @@ public:
 					) 
 				);
 			}
+
 			for (auto& i : index_vec)
 				ptr_to_GlobalPool_peat_->FlushOne (i);
 		}   

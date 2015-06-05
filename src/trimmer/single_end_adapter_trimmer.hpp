@@ -69,6 +69,10 @@ public:
 /**
  * @brief main interface for conducting trimming operation.  
  */
+	inline void QTrim ( std::map < int, std::vector< FORMAT< TUPLETYPE > > >* result2, std::vector<int>& tirm_pos )
+	{
+
+	}
     inline void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, std::vector<int>& trim_pos)
     {
         trim_pos.clear();
@@ -148,6 +152,10 @@ public:
 		);
 	}
 */
+	inline void QTrim ( std::map < int, std::vector< FORMAT< TUPLETYPE > > >* result2, int nthreads, std::vector<int>& tirm_pos, int map_index=0 )
+	{
+
+	}
 
 	inline void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, int nthreads, std::vector<int>& trim_pos, int map_index=0)
 	{
