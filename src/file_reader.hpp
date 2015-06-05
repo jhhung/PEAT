@@ -14,7 +14,8 @@
 #include "file_reader_impl.hpp"
 #include "tuple_utility.hpp"
 #include "wrapper_tuple_utility.hpp"
-#include "thread_pool_update.hpp"
+//#include "thread_pool_update.hpp"
+#include "thread_control_version.hpp"
 #include <functional>
 /// @brief generic form of FileReader < ParallelTypes T, template <typename> class FORMAT, typename TUPLETYPE > is specialized into: \n 1) a normal version, i.e. a serial operation version; 2) a multi-thread version; and 3) a MPI version by assiging the corresponding enum value of ParallelTypes::NORMAL, ParallelTypes::M_T, and ParallelTypes::M_P_I. \n The parallel versions, i.e. the multi-thread and the MPI versions are respectively implemented with our thread_pool.hpp and  mpi_pool.hpp.
 /// @tparam none-type parameter of int / enum of ParallelTypes, indicating what policies that the FileReader is going to employ

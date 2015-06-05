@@ -14,7 +14,8 @@
 #include <tuple>
 #include <unordered_map>
 #include "../str_match/linear_string_match.hpp"
-#include "../thread_pool_update.hpp"
+//#include "../thread_pool_update.hpp"
+#include "../thread_control_version.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/iostreams/filtering_streambuf.hpp"
 #include "boost/iostreams/filtering_stream.hpp"

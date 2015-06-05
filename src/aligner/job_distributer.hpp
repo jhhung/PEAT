@@ -6,7 +6,8 @@
 #include <iostream>
 
 #include "../constant_def.hpp"
-#include "../thread_pool_update.hpp"
+//#include "../thread_pool_update.hpp"
+#include "../thread_control_version.hpp"
 //#include "aligner_trait.hpp"
 //#include "genome_pre_handler.hpp"
 //#include "aligner_table.hpp"
@@ -37,13 +38,14 @@ public:
 		, std::function<void(typename InType::value_type &, OutType &)> functor
 	)
 	{
-		//std::cout << "AA" << std::endl;
-		//GlobalPool.ChangePoolSize(nthreads);
+//		std::cout << "AA" << std::endl;
+//		GlobalPool.ChangePoolSize(nthreads);
 		std::vector<OutType*> tmp_out( std::ceil(datas.size()/(double)in_group_reads_number));
 		INTTYPE group_idx (0);
 		//std::cout << "B" << std::endl;
 		std::vector<size_t> jobs;
-		
+	
+//		std::cerr << "out.size():" << out.size() << "\n";
 		
 		for(auto i( datas.begin() ); i < datas.end(); i += in_group_reads_number)
 		{
@@ -113,6 +115,7 @@ private:
 public:
 	Job_distributer()
 		:in_group_reads_number(1000)
+
 	{};
 	
 	
