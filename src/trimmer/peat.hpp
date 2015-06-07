@@ -112,11 +112,11 @@ removed FastQ format output files (dual files).
 		}
 		else
 		{
-			out = new std::ofstream {outputFile_1+"_paired1.fq"};
-			out_2 = new std::ofstream {outputFile_2+"_paired2.fq"};
+			out = new std::ofstream {outputFile_1};
+			out_2 = new std::ofstream {outputFile_2};
 			if (!*out || !*out_2) 
 			{
-				std::cerr << "Error: cannot creat output file " << outputFile_1+"_paired1 and " <<outputFile_2+"_paired2" << ".\nPlease double check.\nExiting..." << std::endl;
+				std::cerr << "Error: cannot creat output file " << outputFile_1+" and " << outputFile_2 << ".\nPlease double check.\nExiting..." << std::endl;
 				exit (1);
 			}
 		}
