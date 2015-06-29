@@ -12,6 +12,7 @@
 #include <boost/thread.hpp>
 #include "constant_def.hpp"
 #include "file_reader_impl.hpp"
+//#include "iohandler/ihandler/format/fastq_ihandler_impl_peat.hpp"
 #include "tuple_utility.hpp"
 #include "wrapper_tuple_utility.hpp"
 //#include "thread_pool_update.hpp"
@@ -23,13 +24,15 @@
 /// @tparam TUPLETYPE indicating data format of the got piece of data
 template < ParallelTypes ParaType, template < typename> class FORMAT, typename TUPLETYPE, SOURCE_TYPE STYPE, typename... ARGS >
 class FileReader 
-	: public FileReader_impl < FORMAT, TUPLETYPE, STYPE, ARGS... >//< T, FORMAT, TUPLETYPE >
+//	: public FileReader_impl < FORMAT, TUPLETYPE, STYPE, ARGS... >//< T, FORMAT, TUPLETYPE >
+	: public FileReader_impl < FORMAT, TUPLETYPE, STYPE >//< T, FORMAT, TUPLETYPE >
 {};
 
 /// @brief specialized form of the FileReader, with the ParallelType specialized to be NORMAL, indicating non-parallel scheme
 template < template < typename > class FORMAT, typename TUPLETYPE, SOURCE_TYPE STYPE, typename... ARGS >
 class FileReader < ParallelTypes::NORMAL, FORMAT, TUPLETYPE, STYPE, ARGS... >
-	: public FileReader_impl < FORMAT, TUPLETYPE, STYPE, ARGS...  >
+//	: public FileReader_impl < FORMAT, TUPLETYPE, STYPE, ARGS...  >
+	: public FileReader_impl < FORMAT, TUPLETYPE, STYPE >
 {
 private:
 /// @memberof FileReader
@@ -41,7 +44,8 @@ private:
 		std::vector< FORMAT<TUPLETYPE> > temp;
 		for (size_t i=0; i!=Num; ++i)
 		{
-			auto r = FileReader_impl<FORMAT, TUPLETYPE, STYPE, ARGS... >::get_next_entry (index);
+//			auto r = FileReader_impl<FORMAT, TUPLETYPE, STYPE, ARGS... >::get_next_entry (index);
+			auto r = FileReader_impl<FORMAT, TUPLETYPE, STYPE >::get_next_entry (index);
 			if (r.eof_flag)
 				break;
 			temp.push_back (r);
@@ -54,7 +58,8 @@ private:
 		std::vector< FORMAT<TUPLETYPE> > temp;
 		for (size_t i=0; i!=Num; ++i)
 		{
-			auto r = FileReader_impl<FORMAT, TUPLETYPE, STYPE, ARGS... >::get_next_entry (index);
+//			auto r = FileReader_impl<FORMAT, TUPLETYPE, STYPE, ARGS... >::get_next_entry (index);
+			auto r = FileReader_impl<FORMAT, TUPLETYPE, STYPE >::get_next_entry (index);
 			if (r.eof_flag)
 				break;
 			if (r.getSeq().find ('N') != std::string::npos || r.getSeq().find ('n') != std::string::npos )
@@ -74,7 +79,8 @@ public:
 	FileReader ( std::vector <std::string>& uni_file_in, 
 				 std::map <int, std::vector< FORMAT<TUPLETYPE> > >* content,
 				 std::vector <uint64_t> sizein = std::vector<uint64_t>(0) )  
-		: FileReader_impl < FORMAT, TUPLETYPE, STYPE, ARGS...  > (uni_file_in, sizein) 
+//		: FileReader_impl < FORMAT, TUPLETYPE, STYPE, ARGS...  > (uni_file_in, sizein) 
+		: FileReader_impl < FORMAT, TUPLETYPE, STYPE > (uni_file_in, sizein) 
 		, result2 ( content )
 	{}
 
@@ -144,7 +150,8 @@ public:
 /// @brief specialized form of the FileReader, with the ParallelType specialized to be M_T, indicating multi-thread scheme
 template < template < typename > class FORMAT, typename TUPLETYPE, SOURCE_TYPE STYPE, typename... ARGS >
 class FileReader < ParallelTypes::M_T, FORMAT, TUPLETYPE, STYPE, ARGS... >
-    : public FileReader_impl < FORMAT, TUPLETYPE, STYPE, ARGS...  >
+//  : public FileReader_impl < FORMAT, TUPLETYPE, STYPE, ARGS...  >
+    : public FileReader_impl < FORMAT, TUPLETYPE, STYPE >
 {
 private:
 /// @memberof FileReader
@@ -156,7 +163,8 @@ private:
 		std::vector< FORMAT<TUPLETYPE> > temp;
 		for (size_t i=0; i!=Num; ++i)
 		{
-			auto r = FileReader_impl<FORMAT, TUPLETYPE, STYPE, ARGS... >::get_next_entry (index);
+//			auto r = FileReader_impl<FORMAT, TUPLETYPE, STYPE, ARGS... >::get_next_entry (index);
+			auto r = FileReader_impl<FORMAT, TUPLETYPE, STYPE >::get_next_entry (index);
 			if (r.eof_flag)
 				break;
 			temp.push_back (r);
@@ -177,7 +185,8 @@ public:
 				 std::map <int, std::vector< FORMAT<TUPLETYPE> > >* content,
 				 std::vector <uint64_t> sizein = std::vector<uint64_t>(0), 
 				 ThreadPool* tp = &GlobalPool )
-		: FileReader_impl < FORMAT, TUPLETYPE, STYPE, ARGS...  > (uni_file_in, sizein) 
+//		: FileReader_impl < FORMAT, TUPLETYPE, STYPE, ARGS...  > (uni_file_in, sizein) 
+		: FileReader_impl < FORMAT, TUPLETYPE, STYPE > (uni_file_in, sizein) 
 		, result2 ( content )
 		, ptr_to_GlobalPool ( tp )
 //		, local_pool_ ( ptr_to_GlobalPool -> pool_size_ )

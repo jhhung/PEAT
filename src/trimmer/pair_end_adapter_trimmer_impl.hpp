@@ -23,6 +23,7 @@
 #include "boost/iostreams/filter/gzip.hpp"
 #include "boost/iostreams/device/file_descriptor.hpp"
 #include "boost/range.hpp"
+#include "../constant_def.hpp"
 
 /**
  * @brief provide a static type detector, which returns true when the passed in type T is double, and returns false otherwise.
@@ -92,6 +93,13 @@ struct ParameterTrait
 	typename TRAIT::MismatchIndicatorType m_indicator; //indicating max mismatch tolerance in rc compare opeartion, double for ratio and size_t for length. 
 	typename TRAIT::adapter_compare_scheme_type a_mismatch; //indicating max mismatch tolerance in adapter compare operation
 	typename TRAIT::gene_compare_scheme_type g_mismatch; //indicating max mismatch tolerance in gene compare operation
+	
+	int q_min_read_length_;
+	float q_threshold_;
+	std::string qtype;
+	int QS_index_;
+	int shift_value_, min_value_, max_value_;
+	std::vector<float> q_table_;
 
 /**
  * @brief constructor 
@@ -102,6 +110,9 @@ struct ParameterTrait
 					, typename TRAIT::gene_compare_scheme_type g_ind=0.4
 					, size_t num_in=100000
 					, size_t pool_size_in=1
+					, float q_threshold=30.0
+					, std::string qtype = "SANGER"
+					, int q_min_read_length=30
 					)
 		: startsize (startsize_in)
 		, num (num_in)
@@ -109,7 +120,43 @@ struct ParameterTrait
 		, m_indicator (rc_ind)
 		, a_mismatch (a_ind)
 		, g_mismatch (g_ind)
-	{}
+		, q_min_read_length_ (q_min_read_length)
+		, q_threshold_ (q_threshold)
+/**
+ * @brief for Quality Trimmer
+ */
+	{
+		if (qtype=="PHRED")
+			QS_index_ = QualityScoreType::PHRED;
+		else if (qtype=="SANGER")
+			QS_index_ = QualityScoreType::SANGER;
+		else if (qtype=="SOLEXA")
+			QS_index_ = QualityScoreType::SOLEXA;
+		else if (qtype=="ILLUMINA")
+			QS_index_ = QualityScoreType::ILLUMINA;
+
+		switch (QS_index_)
+		{
+			case QualityScoreType::PHRED:
+				shift_value_=0; min_value_=4; max_value_=60; break;
+			case QualityScoreType::SANGER:
+				shift_value_=33; min_value_=0; max_value_=93; break;
+			case QualityScoreType::SOLEXA:
+				shift_value_=64; min_value_=-5; max_value_=62; break;
+			case QualityScoreType::ILLUMINA:
+				shift_value_=64; min_value_=0; max_value_=62; break;
+			default:
+				std::cerr << "Please enter the correct quality-to-probability conversion formulas types." <<"\n";
+				exit(1);
+		}                                                                                                                                                            
+		
+		float q_sum_temp(0);
+		for (size_t index (0); index != 500; ++index) 
+		{
+			q_sum_temp += q_threshold_;
+			q_table_.push_back(q_sum_temp);
+		}
+	}
 };
 
 /**
@@ -168,6 +215,36 @@ public:
 		, mismatch_indicator_adapter (i_parameter_trait.a_mismatch)
 		, mismatch_indicator_gene (i_parameter_trait.g_mismatch)
 	{}
+/**
+ * @brief addtional function: trim reads which is under the threshold.
+ */
+
+	void QTrimImpl (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, size_t start, size_t dif)
+	{
+		for ( size_t itr=start; itr!=start+dif; ++itr)
+		{
+			std::vector< float > sum_qscores_1, sum_qscores_2;
+			MapQualityToSumScore ( std::get<3>((*result2)[0][itr].data), sum_qscores_1 );
+			MapQualityToSumScore ( std::get<3>((*result2)[1][itr].data), sum_qscores_2 );
+			size_t read_pair_length ( std::min ( std::get<1>((*result2)[0][itr].data).size(), std::get<1>((*result2)[1][itr].data).size() ) );
+			size_t cut_pos(0);
+			while ( read_pair_length > parameter_trait.startsize )
+			{
+				if ( std::min ( sum_qscores_1[read_pair_length-1], sum_qscores_2[read_pair_length-1] ) < parameter_trait.q_table_[read_pair_length-1] )
+				{
+					++cut_pos;
+					--read_pair_length;
+				}
+				else
+					break;
+			}
+			std::get<1>((*result2)[0][itr].data).resize ( std::get<1>((*result2)[0][itr].data).size() - cut_pos );  
+			std::get<3>((*result2)[0][itr].data).resize ( std::get<3>((*result2)[0][itr].data).size() - cut_pos );  
+			std::get<1>((*result2)[1][itr].data).resize ( std::get<1>((*result2)[1][itr].data).size() - cut_pos );  
+			std::get<3>((*result2)[1][itr].data).resize ( std::get<3>((*result2)[1][itr].data).size() - cut_pos );  
+		}
+	}
+
 
 /**
  * @brief main interface for conducting trimming operation, where 1st and 2nd levels of string matching operations will be conducted.
@@ -232,6 +309,25 @@ public:
 	}		
 
 protected:	
+
+	inline void MapQualityToSumScore ( std::string qual_seq, std::vector<float>& scores )
+	{
+		float q_sum(0.0);
+		int length = qual_seq.size(), quality_word;
+		for ( int index = 0; index < length; ++index )
+		{
+			quality_word = (char) qual_seq[index]-parameter_trait.shift_value_;
+			if ( quality_word < parameter_trait.min_value_ || quality_word > parameter_trait.max_value_ )
+			{
+				std::cerr << "Base quality out of range for specifed quality type." << std::endl;
+				exit(1); 
+			}
+			q_sum += float(quality_word);
+			scores.push_back(q_sum);
+		}
+	}
+
+	
 /**
  * @brief a function capable of having paired reads in result2 adjusted with same length
  */

@@ -3,6 +3,7 @@
 #include "trimmer/peat.hpp"
 #include "trimmer/seat.hpp"
 //using namespace std;
+
 int main (int argc, char** argv) 
 {
 	std::string usage = R"(
@@ -23,9 +24,11 @@ Usage:
 *********************************************************************************
 
 )";
+
 	if (argc < 2) {
 		std::cerr << usage << std::endl;
-		exit (1);
+		//exit (1);
+		return 1;
 	}
 	if (strcmp (argv[1], "paired") == 0) 
 		paired_end::main (argc-1, argv+1);
@@ -37,4 +40,6 @@ Usage:
 		std::cerr << usage << std::endl;
 		exit (1);
 	}
+
+	return 0;
 }

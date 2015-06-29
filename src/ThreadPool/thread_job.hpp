@@ -12,7 +12,7 @@ struct ThreadJob
  	ThreadJob
  	(
  		JOB_func&& job_content_proto, 
- 		const std::vector<size_t>& wait_job_ids
+ 		std::vector<size_t> wait_job_ids
  	)
  	: wait_job_ids		(wait_job_ids)
  	, job_content_proto (job_content_proto)

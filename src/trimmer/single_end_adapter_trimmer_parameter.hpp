@@ -31,16 +31,17 @@ public:
 		, ptr_to_GlobalPool_peat_ (tp)
 		, trim_position ( std::make_shared<std::map < int, std::vector<size_t> > > () ) 
 	{
-		ptr_to_GlobalPool_peat_ -> ChangePoolSize (traitin.threads_);
+		if ( traitin.threads_ != 0)
+			ptr_to_GlobalPool_peat_ -> ChangePoolSize (traitin.threads_);
 	}
 
-	inline void QTrim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, int nthreads, int map_index=0 )
+	inline void QTrim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, int map_index=0 )
 	{
 		Job_distributer_pipeline <ParallelTypes::M_T, std::vector<FORMAT<TUPLETYPE> >, std::vector<int> > jd;
-		jd.distribute_jobs( (*result2)[map_index], nthreads,
-		[this] (FORMAT<TUPLETYPE>& format_data, std::vector<int>& out_buffer )
+		jd.distribute_Q_jobs( (*result2)[map_index], 
+		[this] (FORMAT<TUPLETYPE>& format_data)
 		{
-			this->QTrimImpl (format_data, out_buffer );
+			this->QTrimImpl (format_data);
 		}
 		);
 	}
@@ -49,7 +50,6 @@ public:
 	{
 		trim_pos.clear();
 		trim_pos.reserve ((*result2)[map_index].size());
-
 		Job_distributer_pipeline <ParallelTypes::M_T, std::vector<FORMAT<TUPLETYPE> >, std::vector<int> > jd;
 		jd.distribute_jobs( (*result2)[map_index], trim_pos, nthreads,
 		[this] (FORMAT<TUPLETYPE>& format_data, std::vector<int>& out_buffer)
@@ -69,14 +69,29 @@ public:
 		this-> SumImpl( (*result)[ map_index ], sum_read_lengths, sum_read_counts );
 	}
 
-	void Summary ( uint32_t sum_length, uint32_t sum_reads, std::string adapterSeq, std::ostream* out_report )
+	void Summary ( uint32_t sum_length, uint32_t sum_reads, std::string adapterSeq, int value, std::ostream* out_report )
 	{                                                                                                              
         double average_length ( double(sum_length)/double(sum_reads) );
-		(*out_report) << "PEAT report\nMode:\tsingle-end";
-		(*out_report) << "\nTotal number of reads:\t" << sum_reads;
-		(*out_report) << "\nAverage length of reads after trimming:\t" << average_length;
-		(*out_report) << "\nAdapter sequence (user applied):\t" << adapterSeq;
+		if ( value == 0 )
+		{	
+			(*out_report) << "PEAT report\nMode:\tsingle-end";
+			(*out_report) << "\nTotal number of reads:\t" << sum_reads;
+			(*out_report) << "\nAverage length of reads in raw data:\t" << average_length;
+			out_report = NULL;
+		}
+		else if ( value == 1 )
+		{
+			(*out_report) << "\nAverage length of reads after quality trimming:\t" << average_length;
+			out_report = NULL;
+		}
+		else if ( value == 2 )
+		{
+			(*out_report) << "\nAverage length of reads after adapter trimming:\t" << average_length;
+			(*out_report) << "\nAdapter sequence (user applied):\t" << adapterSeq << "\n";
+			out_report = NULL;
+		}
 	}                                                                                                              
+
 };
 
 #endif

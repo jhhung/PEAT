@@ -7,9 +7,11 @@
 #include <queue>
 #include <utility>
 #include <functional>
-#include <forward_list>
 #include <tuple>
-
+#include <list>
+#include <memory>
+#include "thread_container.hpp"
+//typedef 
 class ThreadPool
 {	
 	friend ThreadAdapter;
@@ -18,23 +20,26 @@ class ThreadPool
 	int 								job_id_counter;
     int                                 job_id_round;
 	std::mutex							job_id_counter_mutex;
-	std::vector<ThreadAdapter> 			thread_set;
+	ThreadContainer          			thread_set;
 	std::queue<ThreadAdapter*> 			idle_list;
 	std::mutex							idle_list_mutex;
 
 	std::vector<std::tuple<
 		bool,
-		std::forward_list<ThreadJob>
+		std::list<ThreadJob>,
+        std::recursive_mutex*
 	>>									wait_dependency_list;
-	std::mutex							wait_dependency_list_mutex;
+	//std::mutex							wait_dependency_list_mutex;
 	const int							max_job_count;
 	bool 								flush_flag;
-	std::condition_variable 			flush_cv;
-	std::mutex 							flush_cv_mutex;
+//	std::condition_variable 			flush_cv;
+	std::mutex 							flush_mutex;
 	
 	
 	int		get_next_jid();
 	void	job_post_to(ThreadJob job, ThreadAdapter& thread_adapter);
+    void    initialize_thread_set();
+    //bool    is_this_round(int jid);
 protected:
 	ThreadAdapter*
 			get_thread(int jid);
@@ -42,9 +47,11 @@ protected:
 			get_thread(int jid, int skip_tid);
 	bool	check_dependency(std::vector<size_t>& wait_job_ids);
     void    wait_job_list_finish();
+    void    wait_job_list_finish_last();
     void    reset_dependency_list();
 public:
 	ThreadPool(int max_thread_num, int max_job_count = 10000);
+    ~ThreadPool();
 	void	job_free_dependency(int jid, int caller_tid);
 	int		job_post(ThreadJob& job);//only invoke by custom object
 	void	flush_pool();

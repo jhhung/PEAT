@@ -6,10 +6,8 @@
 
 #include <string>
 
-std::string ALPHABET_$ACGNT("$ACGNT");
-std::string ALPHABET_3CHAR(" \"#$%&\'()*+,-./012345;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz");
-#define gAlphabet &ALPHABET_$ACGNT
 
+#define gAlphabet &ALPHABET_$ACGNT
 #define INTTYPE uint64_t
 #define Ungroup_default -5566                                                                                                                                        
 
@@ -159,6 +157,16 @@ enum HeterogeneityClusterCoding
     FivePrimeTail,
     ThreePrimeHead,
     ThreePrimeTail
+};
+
+enum FileDeviceType
+{
+    GzipCompressFilter
+    , BasespaceDevice
+    , BasespaceDevice_download
+    , Ofstream
+    , GzipDeCompressFilter
+    , Ifstream
 };
 
 #endif

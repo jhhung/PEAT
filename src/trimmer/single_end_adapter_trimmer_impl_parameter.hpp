@@ -16,12 +16,15 @@ struct ParameterTraitSeat
 	int threads_;
 	int q_min_read_length_;
 	float q_threshold_;
+	std::vector<float> q_table_;
 	
 	ParameterTraitSeat (std::string adapterseq,
 					std::string qtype,
 					int threads = 1,
+					float q_threshold = 30,
+//					int q_min_read_length = 30,
 					double prior=0.05, double pmatch=0.25, 
-					int minlength=5, int matchscore=1, int mismatchscore=-1, int min_read_length=15, int q_min_read_length = 15, float q_threshold = 30 )
+					int minlength=5, int matchscore=1, int mismatchscore=-1, int min_read_length=15 )
 		: adapter_seq_ (adapterseq)
 		, threads_ (threads)
 		, prior_ (prior)
@@ -30,7 +33,7 @@ struct ParameterTraitSeat
 		, match_score_ (matchscore)
 		, mismatch_score_ (mismatchscore)
 		, min_read_length_ (min_read_length)
-		, q_min_read_length_ (q_min_read_length)
+//		, q_min_read_length_ (q_min_read_length)
 		, q_threshold_ (q_threshold)
 	{
 		if (qtype=="PHRED")
@@ -55,7 +58,14 @@ struct ParameterTraitSeat
 			default:
 				std::cerr << "Please enter the correct quality-to-probability conversion formulas types." <<"\n";
 				exit(1);
-		}                                                                                                                                                            
+		}         
+		
+		float q_sum_temp(0);
+		for (size_t index (0); index != 500; ++index) 
+		{
+			q_sum_temp += q_threshold_;
+			q_table_.push_back(q_sum_temp);
+		}
 	}
 };
 
@@ -70,22 +80,24 @@ public:
 		: quality_score_trait_ (traitin)
 	{}
 
-	inline void QTrimImpl ( FORMAT<TUPLETYPE>& fq, float threshold = 30.0, size_t min_read_length = 10 )
+	inline void QTrimImpl ( FORMAT<TUPLETYPE>& fq )
 	{
-		std::vector< float > qscores;
-		MapQualityToScore ( std::get<3>(fq.data), qscores );
-		float average_qscore ( 0 );
-		while ( std::get<1>(fq.data).size() > quality_score_trait_.q_min_read_length_ )
+		std::vector< float > sum_qscores;
+		MapQualityToSumScore ( std::get<3>(fq.data), sum_qscores );
+		size_t read_length ( std::get<1>(fq.data).size() );
+		size_t cut_pos(0);
+		while ( read_length > quality_score_trait_.min_read_length_ )
 		{
-			calculate_average_qscore ( qscores, average_qscore );
-			if ( average_qscore < quality_score_trait_.q_threshold_ )
+			if ( sum_qscores[read_length-1] < quality_score_trait_.q_table_[read_length-1] )			
 			{
-				std::get<1>(fq.data).resize ( std::get<1>(fq.data).size() -1 );  
-				std::get<3>(fq.data).resize ( std::get<3>(fq.data).size() -1 );  
+				++cut_pos;
+				--read_length;
 			}
 			else
 				break;
 		}
+		std::get<1>(fq.data).resize ( std::get<1>(fq.data).size() - cut_pos );  
+		std::get<3>(fq.data).resize ( std::get<3>(fq.data).size() - cut_pos );  
 	}
 
 	inline void TrimImpl ( FORMAT<TUPLETYPE>& fq, std::vector<int>& trim_pos )
@@ -106,8 +118,9 @@ public:
 protected:
 	ParameterTraitSeat quality_score_trait_;
 
-	inline void MapQualityToScore ( std::string qual_seq, std::vector<float>& scores )
+	inline void MapQualityToSumScore ( std::string qual_seq, std::vector<float>& scores )
 	{
+		float q_sum(0.0);
 		int length = qual_seq.size(), quality_word;
 		for ( int index = 0; index < length; ++index )
 		{
@@ -117,23 +130,10 @@ protected:
 				std::cerr << "Base quality out of range for specifed quality type." << std::endl;
 				exit(1); 
 			}
-			switch (quality_score_trait_.QS_index_)
-			{
-				case QualityScoreType::SOLEXA: 
-					scores.push_back( float(quality_word) ); break;
-				case QualityScoreType::ILLUMINA: case QualityScoreType::SANGER: case QualityScoreType::PHRED:
-					scores.push_back( float(quality_word) ); break;
-			}
+			q_sum += float(quality_word);
+			scores.push_back(q_sum);
 		}
 	}
-
-	inline void calculate_average_qscore ( std::vector<float>& qscores, float average_qscore )
-	{
-		float sum ( 0 );
-		for ( auto&	element: qscores )
-			sum += element;
-		average_qscore = float( sum/qscores.size() );
-	}	
 
 	inline void MapQualityToProb ( std::string qual_seq, std::vector<float>& probs )
 	{

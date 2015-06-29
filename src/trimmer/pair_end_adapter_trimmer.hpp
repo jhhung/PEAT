@@ -75,7 +75,7 @@ public:
 /**
  * @brief main interface for conducting trimming operation.  
  */
-	void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2)
+	void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2 )
 	{
 //		return ;
 		this->check_read_length (result2);
@@ -154,20 +154,45 @@ public:
 		ptr_to_GlobalPool_peat_->ChangePoolSize(i_parameter_trait.pool_size);
 	}
 
+	void QTrim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2)
+	{
+		if ( (*result2)[0].size()==0 )
+			return;
+		this->check_read_length (result2);
+		auto job_count = std::min ( this->parameter_trait.num, std::min ( (*result2)[0].size(), (*result2)[1].size() ) );
+		std::vector<size_t> index_vec;
+		if (job_count >= this->parameter_trait.pool_size)
+		{
+			size_t dif = job_count/this->parameter_trait.pool_size;
+			for (size_t i=0; i!=this->parameter_trait.pool_size; ++i)
+			{
+				index_vec.push_back ( 
+					ptr_to_GlobalPool_peat_ -> JobPost ( 
+						boost::bind	( 
+							&PairEndAdapterTrimmer_impl <FORMAT, TUPLETYPE, TRAIT >::QTrimImpl, 
+							this, result2, i*dif, dif
+						) 
+					) 
+				);
+			}
+
+			for (auto& i : index_vec)
+			{
+				ptr_to_GlobalPool_peat_->FlushOne (i);
+			}
+		}   
+		else
+		{
+			this->QTrimImpl (result2, 0, job_count);
+		}
+	}
+
 /**
  * @brief main interface for conducting trimming operation.  
  */
-	void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2)
+
+	void Trim (std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, int nthreads)
 	{
-/*
-		Job_distributer_pipeline <ParallelTypes::M_T, std::vector<FORMAT<TUPLETYPE> >, std::vector<int> > jd;
-		jd.distribute_jobs( (*result2)[map_index], trim_pos, nthreads,
-		[this] (FORMAT<TUPLETYPE>& format_data, std::vector<int>& out_buffer)
-		{
-			this->TrimImpl (format_data, out_buffer);
-		}
-		);
-*/
 
 		if ( (*result2)[0].size()==0 )
 			return;
@@ -208,13 +233,25 @@ public:
 		this-> SumImpl( (*result)[ map_index + 1 ], sum_read_lengths, sum_read_counts );
 	}	
 	
-	void Summary ( uint32_t sum_length, uint32_t sum_reads, std::ostream* out_report )
+	void Summary ( uint32_t sum_length, uint32_t sum_reads, int value, std::ostream* out_report )
 	{                                                                                                              
         double average_length ( double(sum_length)/double(sum_reads) );
-		(*out_report) << "PEAT report\nMode:\tpaired-end";
-		(*out_report) << "\nTotal number of reads:\t" << sum_reads;
-		(*out_report) << "\nAverage length of reads after trimming:\t" << average_length;
+		if ( value == 0 )
+		{	
+			(*out_report) << "PEAT report\nMode:\tpaired-end";
+			(*out_report) << "\nTotal number of reads:\t" << sum_reads;
+			(*out_report) << "\nAverage length of reads in raw data:\t" << average_length;
+		}
+		else if ( value == 1 )
+		{
+			(*out_report) << "\nAverage length of reads after quality trimming:\t" << average_length;
+		}
+		else if ( value == 2 )
+		{
+			(*out_report) << "\nAverage length of reads after adapter trimming:\t" << average_length << "\n";
+		}
 	}                                                                                                              
+
 };
 
 #endif

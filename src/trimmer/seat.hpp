@@ -1,10 +1,15 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "../file_reader.hpp"
+//#include "../file_reader.hpp"
+//#include "../iohandler/ihandler/IhandlerFactory.hpp"
+#include "../iohandler/ihandler/IhandlerFactory.h"
 #include "single_end_adapter_trimmer_parameter.hpp"
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include "../format/fastq.hpp"
 namespace single_end
 {
 	int main( int argc, char** argv )
@@ -30,6 +35,8 @@ namespace single_end
 		std::string qualityType {};
 		std::string outputFile {};
 		int nthreads {};
+		bool qtrim_flag {false};
+		float threshold;
 		bool verboses {false};
 		boost::program_options::options_description opts {usage};
 
@@ -37,20 +44,37 @@ namespace single_end
 		{
 			opts.add_options ()
 				("help,h", "display this help message and exit")
-				("input,i", boost::program_options::value<std::string>(&inputFile)->required(), "The input FastQ file.")
+				("input,i", boost::program_options::value<std::string>(&inputFile)->required(), "The input FastQ file (.fq) or Gzip compressed FASTQ file (.fq.gz).")
 				("adapter,a", boost::program_options::value<std::string>(&adapterSeq)->required(), "The adapter sequence, with minimum length of six characters.")
 				("quality,q", boost::program_options::value<std::string>(&qualityType)->required(), "The quality type. Type any one of the following quality type indicator: ILLUMINA, PHRED, SANGER, SOLEXA")
 				("output,o", boost::program_options::value<std::string>(&outputFile)->default_value(std::string {"stdout"}), "Output FastQ file, stdout by default ")			
 				("thread,n", boost::program_options::value<int>(&nthreads)->default_value(1), "Number of thread to use; if the number is larger than the core available, it will be adjusted automatically")
+				("qtrim", "Quality trimmer; trim the last base of the reads until the mean score is larger than threshold")
+				("threshold,t", boost::program_options::value<float>(&threshold), "The threshold value of the quality trimmer, 30.0 by default")
 				("verbose", "Output running process by stderr ")
 				;
 			boost::program_options::variables_map vm;
 			boost::program_options::store (boost::program_options::parse_command_line(argc, argv, opts), vm);
 			boost::program_options::notify(vm);
 			
+			/** check the qtrim option**/
+			if ( vm.count("qtrim") )
+			{
+				qtrim_flag = true;
+				if ( !vm.count("threshold") )
+                    threshold=30.0;
+			}
+
 			/** check the verbose option **/
 			if ( vm.count("verbose") )
 				verboses = true;
+			
+			/** check the threshold option**/
+            if ( vm.count("threshold") && !vm.count("qtrim") )
+            {   
+                std::cerr << "Error: cannot use the option: thredshold because of the loss of the option: qtrim\n";
+                exit(1);
+            }   
 		} 
 		catch (std::exception& e) 
 		{
@@ -94,15 +118,15 @@ namespace single_end
 		}
 
 		/** check thread **/
-		auto nCore = boost::thread::hardware_concurrency();
-		if ( nCore != 0 && nthreads > nCore) 
-		{
-			std::cerr << "Warning: the number of threads set (" << nthreads << ") is larger than the number of cores available (" << nCore << ") in this machine.\nSo reset -n=" << nCore << std::endl;
-			nthreads = nCore;
-		}
-		
+//		auto nCore = boost::thread::hardware_concurrency();
+//		if ( nCore != 0 && nthreads > nCore) 
+//		{
+//			std::cerr << "Warning: the number of threads set (" << nthreads << ") is larger than the number of cores available (" << nCore << ") in this machine.\nSo reset -n=" << nCore << std::endl;
+//			nthreads = nCore;
+//		}
+
 		//**open the report.txt
-		std::ostream* out_report{nullptr}; 
+		std::ostream* out_report{NULL}; 
 		if (outputFile == "stdout" || outputFile == "-") 
 			out_report = &std::cout;
 		else
@@ -117,27 +141,34 @@ namespace single_end
 		typedef std::tuple<std::string, std::string, std::string, std::string> TUPLETYPE;
 		std::vector<std::string> read_vec ({inputFile});
 		std::map<int, std::vector< Fastq<TUPLETYPE> > > result;
-		FileReader < ParallelTypes::NORMAL, Fastq, TUPLETYPE, SOURCE_TYPE::IFSTREAM_TYPE > FileReader (read_vec, &result);
+//		FileReader < ParallelTypes::NORMAL, Fastq, TUPLETYPE, SOURCE_TYPE::IFSTREAM_TYPE > FileReader (read_vec, &result);
+		auto tup = IhandlerFactory<Fastq, TUPLETYPE>::get_ihandler_read (read_vec, result);
+		auto ihandler 	= std::get<0>(tup);
+		auto deletor 	= std::get<1>(tup);
 
-		ParameterTraitSeat parameter_trait (adapterSeq, qualityType, nthreads);
+		ParameterTraitSeat parameter_trait (adapterSeq, qualityType, nthreads, threshold);
 		SingleEndAdapterTrimmer <ParallelTypes::M_T, Fastq, TUPLETYPE> SEAT (parameter_trait);
 		std::vector<int> trim_pos;
+		std::vector<int> Qtrim_pos;
 		int Q_read_number;
 		uint32_t count_reads(0);
+        uint32_t sum_reads_original(0);
+        uint32_t sum_length_original(0);
+       	uint32_t sum_reads_Q(0);
+        uint32_t sum_length_Q(0);
 		uint32_t sum_reads(0);
 		uint32_t sum_length(0);
 		int flag_type (0);
-//		while (true)
-//		{
-//			bool eof = FileReader.Read (&result, 100000);
-//			SEAT.QTrim ( &result, nthreads );
-//			if (eof)
-//				break;
-//		}
 		while (true)	
 		{
-			bool eof = FileReader.Read (&result, 100000);
-//			std::cerr << "the trim_pos in seat.hpp:" << trim_pos.size() << "\n";
+//			bool eof = FileReader.Read (&result, 100000);
+			bool eof = ihandler (&result, 100000);
+			SEAT.Sum (&result, sum_length_original, sum_reads_original);
+			if (qtrim_flag)
+			{
+				SEAT.QTrim (&result);
+				SEAT.Sum (&result, sum_length_Q, sum_reads_Q);
+			}
 			SEAT.Trim (&result, nthreads, trim_pos);
 			SEAT.Sum (&result, sum_length, sum_reads);
 			for (auto& Q : result.begin()->second)
@@ -157,11 +188,16 @@ namespace single_end
 			static_cast<std::ofstream*>(out)-> close ();
 			delete out;
 		}
-
-		SEAT.Summary ( sum_length, sum_reads, adapterSeq, out_report );
-		static_cast<std::ofstream*>(out_report)-> close ();
-		delete out_report;
-
+		SEAT.Summary ( sum_length_original, sum_reads_original, adapterSeq, 0, out_report );
+		if (qtrim_flag)
+			SEAT.Summary ( sum_length_Q, sum_reads_Q, adapterSeq, 1, out_report );
+		SEAT.Summary ( sum_length, sum_reads, adapterSeq, 2, out_report );
+		if (out_report != &std::cout) 
+		{
+			static_cast<std::ofstream*>(out_report)-> close ();
+			delete out_report;
+		}
+		deletor();
 		return 0;
 	}
 }

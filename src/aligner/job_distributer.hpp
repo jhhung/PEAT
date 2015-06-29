@@ -70,6 +70,7 @@ public:
 			++group_idx;
 			jobs.push_back(job_id);
 		}
+
 		for( auto i : jobs)
 		{
 			GlobalPool.FlushOne(i);
@@ -85,6 +86,57 @@ public:
 			delete tmp_out_child;
 		}
 	}
+	
+	void distribute_Q_jobs(
+			InType &datas
+		, std::function<void(typename InType::value_type &)> functor
+	)
+	{
+	//	std::vector<OutType*> tmp_out( std::ceil(datas.size()/(double)in_group_reads_number));
+		INTTYPE group_idx (0);
+		std::vector<size_t> jobs;
+		
+		for(auto i( datas.begin() ); i < datas.end(); i += in_group_reads_number)
+		{
+			auto range_begin (i);
+			auto range_end (i + in_group_reads_number);
+			//std::cout << "begin " << range_begin-datas.begin() << " end " << range_end-datas.begin() << std::endl;
+			if(range_end > datas.end())
+				range_end = datas.end();
+
+			auto job_id = GlobalPool.JobPost(
+//				[this, range_begin, range_end, group_idx, &tmp_out, &functor]()
+				[this, range_begin, range_end, group_idx, &functor]()
+				{
+	//				(tmp_out[group_idx]) = new OutType();
+					std::for_each(range_begin, range_end, 
+//						[&tmp_out, &functor, group_idx](typename InType::value_type & data)
+						[&functor](typename InType::value_type & data)
+						{
+//							functor(data, *(tmp_out[group_idx]) );
+							functor(data);
+						}
+					);
+				}, std::vector<size_t>(0) 
+			);
+			++group_idx;
+			jobs.push_back(job_id);
+		}
+		for( auto i : jobs)
+		{
+			GlobalPool.FlushOne(i);
+		}
+		//GlobalPool.ResetPool();
+/*		
+		for(auto &tmp_out_child : tmp_out)
+		{
+			INTTYPE tmp = tmp_out_child->size();
+			std::move( tmp_out_child->begin(), tmp_out_child->end(), std::back_inserter(out) );
+			delete tmp_out_child;
+		}
+*/
+	}
+
 };
 
 
