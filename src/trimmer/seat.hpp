@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 //#include "../file_reader.hpp"
-//#include "../iohandler/ihandler/IhandlerFactory.hpp"
 #include "../iohandler/ihandler/IhandlerFactory.h"
 #include "single_end_adapter_trimmer_parameter.hpp"
 #include <boost/program_options.hpp>
