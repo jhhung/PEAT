@@ -16,7 +16,6 @@ Please find the binary that suits your platform:
 
 ```
 bin/PEAT_linux  // for centos/redhat/ubuntu/fedara/...
-bin/PEAT_Mac     // for OSX
 ```
 
 Or you can find them in the release tab in this page or at this link:
@@ -93,3 +92,4 @@ Li, Y.-L., Weng, J.-C., Hsiao, C.-C., Chou, M.-T., Tseng, C.-W., & Hung, J.-H. (
 	Jui-Hung Hung <juihunghung@gmail.com>
 	Yun-Lung Li <obigbando@gmail.com>
 	Jui-Cheng Weng <johnny231949@gmail.com>
+	Chiung-Po Hsiao <restart0216s@gmail.com>
