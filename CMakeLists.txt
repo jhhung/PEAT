@@ -35,5 +35,5 @@ if(Boost_FOUND AND Threads_FOUND AND ZLIB_FOUND)
 # add the executable
 	add_executable(bin/PEAT src/main.cpp)
 	add_definitions(-DmyALPHABET)
-	target_link_libraries( bin/PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread_pool.a )
+	target_link_libraries( bin/PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread_pool.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory.a )
 endif()
