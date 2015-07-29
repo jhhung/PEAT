@@ -19,6 +19,13 @@ else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
 
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(LINUX TRUE)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(MACOSX TRUE)
+endif()
+
 include (${CMAKE_ROOT}/Modules/FindBoost.cmake)
 
 #boost
@@ -35,6 +42,11 @@ if(Boost_FOUND AND Threads_FOUND AND ZLIB_FOUND)
 # add the executable
 	add_executable(bin/PEAT src/main.cpp)
 	add_definitions(-DmyALPHABET)
-	target_link_libraries( bin/PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory.a )
-#	target_link_libraries( bin/PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread_mac.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory_mac.a )
+	if (LINUX)
+		message ("Your operating system is Linux...")
+		target_link_libraries( bin/PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory.a )
+	elseif (MACOSX)
+		message ("Your operating system is MacOSX...")
+		target_link_libraries( bin/PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread_mac.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory_mac.a )
+	endif()
 endif()
