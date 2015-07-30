@@ -16,6 +16,8 @@ Please find the binary that suits your platform:
 
 ```
 bin/PEAT_linux  // for centos/redhat/ubuntu/fedara/...
+
+bin/PEAT_mac   // for MACOSX
 ```
 
 Or you can find them in the release tab in this page or at this link:
@@ -68,6 +70,12 @@ bin/PEAT paired -1 <file> -2 <file> -o <output> -n <num> -l <num> -r <num> -g <n
 - -r : Mismatch rate applied in first stage reverse complement scan, 0.4 by default
 - -g : Mismatch rate applied in second stage gene portion check, 0.6 by default
 - -a : Mismatch rate applied in second stage adapter portion check, 0.4 by default
+- --qtrim : Quality trimmer; trim the last base of the reads until the mean quality value of the reads is larger than threshold
+- -q : The quality type. Type any one of the following quality type indicator: ILLUMINA, PHRED, SANGER, SOLEXA. Only for the option: --qtrim
+- -t : The threshold (quality value) of the quality trimmer, 30.0 by default. Only for the option: --qtrim
+- --verbose : Output running process bt stderr
+- --adapter_contexts : Output adapter contexts within the top ten numbers in report.txt; if you use this option, the program becomes slower.
+
 
 #### Single-end adapter trimming [this funciton is adapted from: https://github.com/vsbuffalo/scythe]
 
@@ -80,6 +88,9 @@ bin/PEAT single -i <file> -a <string> -q <string> -o <output> -n <num>
 - -q : The quality type of input FastQ file. (Acceptable quality type : 1.PHRED 2.SANGER 3.SOLEXA 4.ILLUMINA)
 - -o : Output fastq file, stdout by default
 - -n : Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
+- --qtrim : Quality trimmer; trim the last base of the reads until the mean score is larger than threshold.
+- -t :The threshold value of the quality trimmer, 30.0 by default
+- --verbose : Output running process by stderr 
 
 ##Citing PEAT
 Li, Y.-L., Weng, J.-C., Hsiao, C.-C., Chou, M.-T., Tseng, C.-W., & Hung, J.-H. (2015). PEAT: an intelligent and efficient paired-end sequencing adapter trimming algorithm. BMC Bioinformatics, 16(Suppl 1), S2. doi:10.1186/1471-2105-16-S1-S2
