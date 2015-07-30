@@ -1,8 +1,10 @@
 cmake_minimum_required (VERSION 2.6)
 project (PEAT)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Initialize CXXFLAGS.
 set(CMAKE_CXX_FLAGS "-Ofast -std=c++11")
+#set(CMAKE_CXX_FLAGS "-static -Ofast -std=c++11 -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
 #if your boost is installed in somewhere CMake cannot find, please specified as below:
 #SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "$HOME/Downloads/boost_1_51_0/")
 #SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "$HOME/Downloads/boost_1_51_0/lib")

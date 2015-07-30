@@ -100,6 +100,7 @@ struct ParameterTrait
 	int QS_index_;
 	int shift_value_, min_value_, max_value_;
 	std::vector<float> q_table_;
+	bool verbose_flag_adapter_;
 
 /**
  * @brief constructor 
@@ -112,6 +113,7 @@ struct ParameterTrait
 					, size_t pool_size_in=1
 					, float q_threshold=30.0
 					, std::string qtype = "SANGER"
+					, bool verbose_flag_adapter=false
 					, int q_min_read_length=30
 					)
 		: startsize (startsize_in)
@@ -122,6 +124,7 @@ struct ParameterTrait
 		, g_mismatch (g_ind)
 		, q_min_read_length_ (q_min_read_length)
 		, q_threshold_ (q_threshold)
+		, verbose_flag_adapter_ (verbose_flag_adapter)
 /**
  * @brief for Quality Trimmer
  */
@@ -202,7 +205,13 @@ protected:
  */
 	typename TRAIT::gene_compare_scheme_type mismatch_indicator_gene;
 
+/**
+ *@memberof PairEndAdapterTrimmer_impl
+ *@brief store the adapter contexts and adapter numbers
+*/
+
 public:
+	std::map<std::string, int> adapter_context_set_;
 /**
  * @brief constructor
  */
@@ -298,6 +307,8 @@ public:
 					trim_pos.push_back (0);	//keep trim_pos having same sizes as th-start
 				else
 				{
+					GetAdapterContexts (parameter_trait.verbose_flag_adapter_, std::get<1>( ((*result2)[0][itr]).data ), current_trimpos);
+
 					trim_pos.push_back (current_trimpos);
 					std::get<1>( ((*result2)[0][itr]).data ).resize (current_trimpos);
 					std::get<3>( ((*result2)[0][itr]).data ).resize (current_trimpos);
@@ -560,5 +571,19 @@ protected:
 		}
 	}	
 
+	inline void GetAdapterContexts ( bool verbose_flag, std::string& read, std::size_t trimpos )
+	{
+		if (verbose_flag)
+		{
+			std::string adpater_context ( read.substr( trimpos ) );
+			auto iter ( adapter_context_set_.find ( adpater_context ) );  
+			if ( iter == adapter_context_set_.end() )
+				adapter_context_set_.insert({ adpater_context, 1 });
+			else
+				++iter -> second;
+		}
+	}
+
 };
+
 #endif

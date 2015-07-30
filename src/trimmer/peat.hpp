@@ -47,6 +47,7 @@ removed FastQ format output files (dual files).
 		bool qtrim_flag {false};
 		std::string qualityType;
 		bool verboses {false};
+		bool adapter_contexts_flag {false};
 
 		boost::program_options::options_description opts {usage};
 
@@ -67,7 +68,8 @@ removed FastQ format output files (dual files).
 			    ("qtrim", "Quality trimmer; trim the last base of the reads until the mean quality value of the reads is larger than threshold")
 				("quality,q", boost::program_options::value<std::string>(&qualityType), "The quality type. Type any one of the following quality type indicator: ILLUMINA, PHRED, SANGER, SOLEXA\nOnly for the option: --qtrim")
                 ("threshold,t", boost::program_options::value<float>(&threshold), "The threshold (quality value) of the quality trimmer, 30.0 by default\nOnly for the option: --qtrim")
-				("verbose", "Output running process by stderr ")
+				("verbose", "Output running process bt stderr")
+				("adapter_contexts", "Output adapter contexts within the top ten numbers in report.txt; if you use this option, the program becomes slower.")
 				;
 			boost::program_options::variables_map vm;
 			boost::program_options::store (boost::program_options::parse_command_line(argc, argv, opts), vm);
@@ -86,9 +88,16 @@ removed FastQ format output files (dual files).
 				}
 			}
 
-			/** check the verbose option **/
+			/** check the verbose option**/
 			if ( vm.count("verbose") )
 				verboses = true;
+
+
+			/** check the adapter_contexts**/
+
+			if ( vm.count("adapter_contexts") )
+				adapter_contexts_flag = true;
+				
 
 			/** check the threshold option**/
         	if ( vm.count("threshold") && !vm.count("qtrim") )
@@ -206,7 +215,8 @@ removed FastQ format output files (dual files).
 //		auto tup = FastqIhandler::get_ihandler_read (read_vec, result);
 		auto ihandler 	= std::get<0>(tup);
 		auto deletor 	= std::get<1>(tup);
-		ParameterTrait <> i_parameter_trait (minLen, rcRatio, geneRatio, adapterRatio, 100000, nthreads, threshold, qualityType);
+
+		ParameterTrait <> i_parameter_trait (minLen, rcRatio, geneRatio, adapterRatio, 100000, nthreads, threshold, qualityType, adapter_contexts_flag);
 		PairEndAdapterTrimmer <ParallelTypes::M_T, Fastq, TUPLETYPE, TrimTrait<std::string, LinearStrMatch <double>, double, double > > PEAT (i_parameter_trait);
 		uint32_t count_reads(0);
 		uint32_t sum_reads_original(0);
@@ -270,7 +280,7 @@ removed FastQ format output files (dual files).
 		PEAT.Summary ( sum_length_original, sum_reads_original, 0, out_report );
 		if (qtrim_flag) 
 			PEAT.Summary ( sum_length_Q, sum_reads_Q, 1, out_report );
-		PEAT.Summary ( sum_length, sum_reads, 2, out_report );
+		PEAT.Summary ( sum_length, sum_reads, out_report, PEAT.adapter_context_set_ );
 		if (out_report != &std::cout)
 		{
 			static_cast<std::ofstream*>(out_report)-> close ();

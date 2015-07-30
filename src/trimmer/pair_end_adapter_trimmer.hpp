@@ -1,3 +1,5 @@
+#include<array>
+
 /**
  *  @file pair_end_adapter_trimmer.hpp
  *  @brief provide PEAT implementation detail
@@ -246,11 +248,32 @@ public:
 		{
 			(*out_report) << "\nAverage length of reads after quality trimming:\t" << average_length;
 		}
-		else if ( value == 2 )
-		{
-			(*out_report) << "\nAverage length of reads after adapter trimming:\t" << average_length << "\n";
-		}
 	}                                                                                                              
+	
+	void Summary ( uint32_t sum_length, uint32_t sum_reads, std::ostream* out_report, std::map<std::string, int>& adapter_context_set )
+	{
+        double average_length ( double(sum_length)/double(sum_reads) );
+		(*out_report) << "\nAverage length of reads after adapter trimming:\t" << average_length << "\n";
+
+		if( !adapter_context_set.empty() )
+		{
+			std::multimap<int, std::string> adapter_context_rank;
+			(*out_report)<< "The top numbers of adpater contexts:\n";	
+			(*out_report)<< "Context\tNumber\n";	
+
+			int count(0);
+			for ( auto& element: adapter_context_set )
+				adapter_context_rank.insert( {element.second, element.first} );
+			for ( auto riter = adapter_context_rank.rbegin(); riter != adapter_context_rank.rend(); ++riter)
+			{
+				if ( count !=10 ) 
+					(*out_report) << riter->second << "\t" << riter->first << "\n";
+				else
+					break;
+				++count;
+			}
+		}
+	}
 
 };
 
