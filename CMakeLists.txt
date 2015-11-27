@@ -4,7 +4,10 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Initialize CXXFLAGS.
 set(CMAKE_CXX_FLAGS "-Ofast -std=c++11")
+#For static in linux
 #set(CMAKE_CXX_FLAGS "-static -Ofast -std=c++11 -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
+#For cgdb
+#set(CMAKE_CXX_FLAGS "-O0 -std=c++11 -w -g -DDEBUG_log=1")
 #if your boost is installed in somewhere CMake cannot find, please specified as below:
 #SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "$HOME/Downloads/boost_1_51_0/")
 #SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "$HOME/Downloads/boost_1_51_0/lib")
@@ -42,11 +45,14 @@ find_package( ZLIB )
 if(Boost_FOUND AND Threads_FOUND AND ZLIB_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ) 
 # add the executable
-	add_executable(bin/PEAT src/main.cpp)
+#	add_executable(bin/PEAT src/main.cpp)
+#Static linux
+	add_executable(bin/PEAT_linux_new src/main.cpp)
 	add_definitions(-DmyALPHABET)
 	if (LINUX)
 		message ("Your operating system is Linux...")
 		target_link_libraries( bin/PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory.a )
+#		target_link_libraries( bin/PEAT_linux ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory.a )
 	elseif (MACOSX)
 		message ("Your operating system is MacOSX...")
 		target_link_libraries( bin/PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread_mac.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory_mac.a )

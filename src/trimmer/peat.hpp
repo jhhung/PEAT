@@ -9,6 +9,10 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 #include "../format/fastq.hpp"
 
 namespace paired_end
@@ -47,6 +51,7 @@ removed FastQ format output files (dual files).
 		bool qtrim_flag {false};
 		std::string qualityType;
 		bool verboses {false};
+		bool compressed_flag {false};
 		bool adapter_contexts_flag {false};
 
 		boost::program_options::options_description opts {usage};
@@ -68,7 +73,8 @@ removed FastQ format output files (dual files).
 			    ("qtrim", "Quality trimmer; trim the last base of the reads until the mean quality value of the reads is larger than threshold")
 				("quality,q", boost::program_options::value<std::string>(&qualityType), "The quality type. Type any one of the following quality type indicator: ILLUMINA, PHRED, SANGER, SOLEXA\nOnly for the option: --qtrim")
                 ("threshold,t", boost::program_options::value<float>(&threshold), "The threshold (quality value) of the quality trimmer, 30.0 by default\nOnly for the option: --qtrim")
-				("verbose", "Output running process bt stderr")
+				("out_gzip", "Compress the FASTQ output to Gzip file. This option is required the option: -o or --output_1/--output_2")
+				("verbose", "Output running process by stderr")
 				("adapter_contexts", "Output adapter contexts within the top ten numbers in report.txt; if you use this option, the program becomes slower.")
 				;
 			boost::program_options::variables_map vm;
@@ -114,6 +120,18 @@ removed FastQ format output files (dual files).
 			}
 			else
 				qualityType = "SANGER";
+			/** check the out_gzip**/
+			if ( vm.count("out_gzip") )
+			{
+				if ( outputFile != "stdout" || ( outputFile_1 != "stdout" && outputFile_1 != "stdout" ))
+					compressed_flag = true;
+				else
+				{
+					std::cerr << "Error: cannot use the --out_gzip: This option is requried the option: -o or --output_1/--output_2" << std::endl;
+					exit(1);
+				}
+			}
+			else;
 		} 
 		catch (std::exception& e) 
 		{
@@ -137,6 +155,8 @@ removed FastQ format output files (dual files).
 		/** check output **/
 		std::ostream* out{nullptr};
 		std::ostream* out_2{nullptr};
+		boost::iostreams::filtering_ostream* out_gzip{nullptr};
+		boost::iostreams::filtering_ostream* out2_gzip{nullptr};
 		if ( ( outputFile == "stdout" && outputFile_1 == "stdout" && outputFile_2 == "stdout" ) || ( outputFile_1 == "-" && outputFile_2 == "-" ) ) 
 			out = &std::cout;
 		else if ( outputFile != "stdout" && ( outputFile_1 != "stdout" || outputFile_2 != "stdout" ) )  
@@ -151,8 +171,26 @@ removed FastQ format output files (dual files).
 		}
 		else if ( outputFile != "stdout" )  
 		{
-			out = new std::ofstream {outputFile+"_paired1.fq"};
-			out_2 = new std::ofstream {outputFile+"_paired2.fq"};
+
+			if (!compressed_flag)
+			{
+				out = new std::ofstream {outputFile+"_paired1.fq"};
+				out_2 = new std::ofstream {outputFile+"_paired2.fq"};
+			}
+
+			else
+			{
+				out = new std::ofstream {outputFile+"_paired1.gz"};
+				out_2 = new std::ofstream {outputFile+"_paired2.gz"};
+
+				out_gzip = new boost::iostreams::filtering_ostream();
+				out_gzip->push(boost::iostreams::gzip_compressor());
+				out_gzip->push(*out); 
+				out2_gzip = new boost::iostreams::filtering_ostream();
+				out2_gzip->push(boost::iostreams::gzip_compressor());
+				out2_gzip->push(*out_2); 
+			}
+
 			if (!*out || !*out_2) 
 			{
 				std::cerr << "Error: cannot creat output file " << outputFile+"_paired1 and " <<outputFile+"_paired2" << ".\nPlease double check.\nExiting..." << std::endl;
@@ -161,8 +199,10 @@ removed FastQ format output files (dual files).
 		}
 		else
 		{
+			///不需要ogzip的判斷：名字由使用者自己取
 			out = new std::ofstream {outputFile_1};
 			out_2 = new std::ofstream {outputFile_2};
+			
 			if (!*out || !*out_2) 
 			{
 				std::cerr << "Error: cannot creat output file " << outputFile_1+" and " << outputFile_2 << ".\nPlease double check.\nExiting..." << std::endl;
@@ -202,7 +242,7 @@ removed FastQ format output files (dual files).
 			std::string ReportFile {temp[0] + "_report.txt" };
 			out_report = new std::ofstream {ReportFile};
 		}
-		
+
 		typedef std::tuple<std::string, std::string, std::string, std::string> TUPLETYPE;
 		std::vector<std::string> read_vec ({ inputFile_1, inputFile_2 });
 		std::map<int, std::vector< Fastq<TUPLETYPE> > > result;
@@ -240,20 +280,32 @@ removed FastQ format output files (dual files).
 			}
 			PEAT.Trim (&result, nthreads);
 			PEAT.Sum (&result, sum_length, sum_reads);
-
 			count_reads += result[0].size();
 			PEAT.Verbose( verboses, count_reads, flag_type );
 
-			if (out != &std::cout)
+			if (out != &std::cout && !compressed_flag)
 			{
 				for (auto& Q : result.begin()->second)
+				{
 					(*out)<<Q;
+				}
 				auto itr = result.begin();
 				std::advance (itr, 1);
 				for (auto& Q : itr->second)
 					(*out_2)<<Q;
 			}
-			else
+			else if (compressed_flag)
+			{
+				for (auto& Q : result.begin()->second)
+				{
+					(*out_gzip)<<Q;
+				}
+				auto itr = result.begin();
+				std::advance (itr, 1);
+				for (auto& Q : itr->second)
+					(*out2_gzip)<<Q;
+			}
+			else //std::cout
 			{
 				for (auto& Q : result.begin()->second)
 					(*out)<<Q;
@@ -271,21 +323,32 @@ removed FastQ format output files (dual files).
 			}
 		}
 
-		if (out != &std::cout) 
+		if (out != &std::cout)
 		{
-			static_cast<std::ofstream*>(out)-> close ();
-			static_cast<std::ofstream*>(out_2)-> close ();
+			if(compressed_flag)
+			{
+				boost::iostreams::close(*out_gzip);
+				boost::iostreams::close(*out2_gzip);
+				delete out_gzip, out2_gzip;
+			}
+			else;
+			static_cast<std::ofstream*>(out)-> close();
+			static_cast<std::ofstream*>(out_2)-> close();
 			delete out, out_2;
-		}
+		} 
+		else;
+
 		PEAT.Summary ( sum_length_original, sum_reads_original, 0, out_report );
 		if (qtrim_flag) 
 			PEAT.Summary ( sum_length_Q, sum_reads_Q, 1, out_report );
+		else;
 		PEAT.Summary ( sum_length, sum_reads, out_report, PEAT.adapter_context_set_ );
 		if (out_report != &std::cout)
 		{
 			static_cast<std::ofstream*>(out_report)-> close ();
 			delete out_report;
 		}
+		else;
 		deletor();
 		return 0;
 	}

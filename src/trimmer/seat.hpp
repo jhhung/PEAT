@@ -37,6 +37,7 @@ namespace single_end
 		bool qtrim_flag {false};
 		float threshold;
 		bool verboses {false};
+		bool compressed_flag {false};
 		boost::program_options::options_description opts {usage};
 
 		try 
@@ -50,6 +51,7 @@ namespace single_end
 				("thread,n", boost::program_options::value<int>(&nthreads)->default_value(1), "Number of thread to use; if the number is larger than the core available, it will be adjusted automatically")
 				("qtrim", "Quality trimmer; trim the last base of the reads until the mean score is larger than threshold")
 				("threshold,t", boost::program_options::value<float>(&threshold), "The threshold value of the quality trimmer, 30.0 by default")
+				("out_gzip", "Compress the FASTQ output to Gzip file. This option is required the option: -o")
 				("verbose", "Output running process by stderr ")
 				;
 			boost::program_options::variables_map vm;
@@ -74,6 +76,19 @@ namespace single_end
                 std::cerr << "Error: cannot use the option: thredshold because of the loss of the option: qtrim\n";
                 exit(1);
             }   
+
+			/** check the out_gzip**/
+			if ( vm.count("out_gzip") )
+			{
+				if ( outputFile != "stdout" )
+					compressed_flag = true;
+				else
+				{
+					std::cerr << "Error: cannot use the --out_gzip: This option is requried the option: -o" << std::endl;
+					exit(1);
+				}
+			}
+			else;
 		} 
 		catch (std::exception& e) 
 		{
@@ -104,6 +119,7 @@ namespace single_end
 
 		/** check output **/
 		std::ostream* out{nullptr};
+		boost::iostreams::filtering_ostream* out_gzip{nullptr};
 		if (outputFile == "stdout" || outputFile == "-") 
 			out = &std::cout;
 		else 
@@ -114,6 +130,13 @@ namespace single_end
 				std::cerr << "Error: cannot creat output file " << outputFile << ".\nPlease double check.\nExiting..." << std::endl;
 				exit (1);
 			}
+			else if(compressed_flag)
+			{
+				out_gzip = new boost::iostreams::filtering_ostream();	
+				out_gzip->push(boost::iostreams::gzip_compressor());
+				out_gzip->push(*out);
+			}
+			else;
 		}
 
 		/** check thread **/
@@ -170,8 +193,16 @@ namespace single_end
 			}
 			SEAT.Trim (&result, nthreads, trim_pos);
 			SEAT.Sum (&result, sum_length, sum_reads);
-			for (auto& Q : result.begin()->second)
-				(*out)<<Q;
+			if(!compressed_flag)
+			{
+				for (auto& Q : result.begin()->second)
+					(*out)<<Q;
+			}
+			else
+			{
+				for (auto& Q : result.begin()->second)
+					(*out_gzip)<<Q;
+			}
 			count_reads += result[0].size();
 			SEAT.Verbose( verboses, count_reads, flag_type );
 			if (eof)
@@ -184,7 +215,12 @@ namespace single_end
 
 		if (out != &std::cout) 
 		{
-			static_cast<std::ofstream*>(out)-> close ();
+			if (compressed_flag)
+			{
+				boost::iostreams::close(*out_gzip);	 
+				delete out_gzip;
+			}
+			static_cast<std::ofstream*>(out)->close();
 			delete out;
 		}
 		SEAT.Summary ( sum_length_original, sum_reads_original, adapterSeq, 0, out_report );
