@@ -45,9 +45,9 @@ find_package( ZLIB )
 if(Boost_FOUND AND Threads_FOUND AND ZLIB_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ) 
 # add the executable
-#	add_executable(bin/PEAT src/main.cpp)
+	add_executable(bin/PEAT src/main.cpp)
 #Static linux
-	add_executable(bin/PEAT_linux_new src/main.cpp)
+#	add_executable(bin/PEAT_linux_new src/main.cpp)
 	add_definitions(-DmyALPHABET)
 	if (LINUX)
 		message ("Your operating system is Linux...")
