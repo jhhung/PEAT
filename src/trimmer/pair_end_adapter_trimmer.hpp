@@ -240,37 +240,44 @@ public:
         double average_length ( double(sum_length)/double(sum_reads) );
 		if ( value == 0 )
 		{	
-			(*out_report) << "PEAT report\nMode:\tpaired-end";
-			(*out_report) << "\nTotal number of reads:\t" << sum_reads;
-			(*out_report) << "\nAverage length of reads in raw data:\t" << average_length;
+			(*out_report) << "@PEAT report\nMode:\tpaired-end";
+			(*out_report) << "\n@Total number of reads:\t" << sum_reads;
+			(*out_report) << "\n@Average length of reads in raw data:\t" << average_length;
 		}
 		else if ( value == 1 )
 		{
-			(*out_report) << "\nAverage length of reads after quality trimming:\t" << average_length;
+			(*out_report) << "\n@Average length of reads after quality trimming:\t" << average_length;
 		}
 	}                                                                                                              
 	
-	void Summary ( uint32_t sum_length, uint32_t sum_reads, std::ostream* out_report, std::map<std::string, int>& adapter_context_set )
+	void Summary ( uint32_t sum_length, uint32_t sum_reads, std::ostream* out_report, std::map<std::string, uint64_t>& adapter_context_set, const uint32_t& bp )
 	{
         double average_length ( double(sum_length)/double(sum_reads) );
-		(*out_report) << "\nAverage length of reads after adapter trimming:\t" << average_length << "\n";
+		(*out_report) << "\n@Average length of reads after adapter trimming:\t" << average_length << "\n";
 
 		if( !adapter_context_set.empty() )
 		{
-			std::multimap<int, std::string> adapter_context_rank;
-			(*out_report)<< "The top numbers of adpater contexts:\n";	
-			(*out_report)<< "Context\tNumber\n";	
+			std::multimap<uint64_t, std::string> adapter_context_rank;
+			
+			(*out_report)<< "@------------------------------------------------------\n";
+			(*out_report)<< "@The top 50 frequent adpater contexts:\n";	
+			(*out_report)<< "@minimal length (user defined):\t" << bp << "\n";
+			(*out_report)<< "@Context\tLength\tNumber\n";	
 
 			int count(0);
 			for ( auto& element: adapter_context_set )
 				adapter_context_rank.insert( {element.second, element.first} );
 			for ( auto riter = adapter_context_rank.rbegin(); riter != adapter_context_rank.rend(); ++riter)
 			{
-				if ( count !=10 ) 
-					(*out_report) << riter->second << "\t" << riter->first << "\n";
-				else
-					break;
-				++count;
+				if (riter->second.size() > bp ) 
+				{
+					if ( count !=50 ) 
+						(*out_report) << riter->second << "\t" << riter->second.size() << "\t" << riter->first << "\n";
+					else
+						break;
+					++count;
+				}
+				else;
 			}
 		}
 	}

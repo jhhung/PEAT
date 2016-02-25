@@ -53,6 +53,7 @@ removed FastQ format output files (dual files).
 		bool verboses {false};
 		bool compressed_flag {false};
 		bool adapter_contexts_flag {false};
+		int adapter_min_bp (0);
 
 		boost::program_options::options_description opts {usage};
 
@@ -75,7 +76,8 @@ removed FastQ format output files (dual files).
                 ("threshold,t", boost::program_options::value<float>(&threshold), "The threshold (quality value) of the quality trimmer, 30.0 by default\nOnly for the option: --qtrim")
 				("out_gzip", "Compress the FASTQ output to Gzip file. This option is required the option: -o or --output_1/--output_2")
 				("verbose", "Output running process by stderr")
-				("adapter_contexts", "Output adapter contexts within the top ten numbers in report.txt; if you use this option, the program becomes slower.")
+				("adapter_contexts", "Output adapter contexts within the top ten numbers in report.txt; You can use the option: adapter_min_bp to select adapter what you want; if you use this option, the program becomes slower.")
+				("adapter_min_bp", boost::program_options::value<int>(&adapter_min_bp)->default_value(10), "Determine the mininal length of output adapter contexts within the top 50 numbers in report.txt, 10 bp by default; Required the option: adapter_contexts")
 				;
 			boost::program_options::variables_map vm;
 			boost::program_options::store (boost::program_options::parse_command_line(argc, argv, opts), vm);
@@ -103,6 +105,25 @@ removed FastQ format output files (dual files).
 
 			if ( vm.count("adapter_contexts") )
 				adapter_contexts_flag = true;
+			else;
+			/** check the adapter_min_bp**/
+			if ( vm.count("adapter_min_bp") )
+			{
+				if(!vm.count("adapter_contexts"))
+				{
+					std::cerr << "[Error]: adapter_min_bp is required the option: adapter_contexts\n";
+					abort();
+				}
+				else
+				{
+					if(adapter_min_bp < 0)
+					{
+						std::cerr << "[Error]adapter_min_bp < 0 is unreasonable.\n";
+						abort();
+					}
+					else;
+				}
+			}
 				
 
 			/** check the threshold option**/
@@ -342,7 +363,7 @@ removed FastQ format output files (dual files).
 		if (qtrim_flag) 
 			PEAT.Summary ( sum_length_Q, sum_reads_Q, 1, out_report );
 		else;
-		PEAT.Summary ( sum_length, sum_reads, out_report, PEAT.adapter_context_set_ );
+		PEAT.Summary ( sum_length, sum_reads, out_report, PEAT.adapter_context_set_, adapter_min_bp );
 		if (out_report != &std::cout)
 		{
 			static_cast<std::ofstream*>(out_report)-> close ();

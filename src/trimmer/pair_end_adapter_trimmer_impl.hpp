@@ -211,7 +211,7 @@ protected:
 */
 
 public:
-	std::map<std::string, int> adapter_context_set_;
+	std::map<std::string, uint64_t> adapter_context_set_;
 /**
  * @brief constructor
  */
@@ -280,6 +280,7 @@ public:
 			else if ( trim_result.size() == 1)
 			{//directly accept current_trimpos when only one trim_result is presented in the trim_result
 				current_trimpos = trim_result.back();
+				GetAdapterContexts (parameter_trait.verbose_flag_adapter_, std::get<1>( ((*result2)[0][itr]).data ), current_trimpos);
 				trim_pos.push_back (current_trimpos);
 				std::get<1>( ((*result2)[0][itr]).data ).resize (current_trimpos);
 				std::get<3>( ((*result2)[0][itr]).data ).resize (current_trimpos);
@@ -571,16 +572,22 @@ protected:
 		}
 	}	
 
-	inline void GetAdapterContexts ( bool verbose_flag, std::string& read, std::size_t trimpos )
+	inline void GetAdapterContexts ( const bool& verbose_flag, std::string& read, std::size_t trimpos )
 	{
 		if (verbose_flag)
 		{
 			std::string adpater_context ( read.substr( trimpos ) );
-			auto iter ( adapter_context_set_.find ( adpater_context ) );  
-			if ( iter == adapter_context_set_.end() )
-				adapter_context_set_.insert({ adpater_context, 1 });
-			else
-				++iter -> second;
+			if(adpater_context!="")
+			{
+				auto iter ( adapter_context_set_.find ( adpater_context ) );  
+				if ( iter == adapter_context_set_.end() )
+					adapter_context_set_.insert({ adpater_context, 1 });
+				else
+				{
+					++iter -> second;
+				}
+			}
+			else;
 		}
 	}
 
