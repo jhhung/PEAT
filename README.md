@@ -75,6 +75,7 @@ bin/PEAT paired -1 <file> -2 <file> -o <output> -n <num> -l <num> -r <num> -g <n
 - -t : The threshold (quality value) of the quality trimmer, 30.0 by default. Only for the option: --qtrim
 - --verbose : Output running process bt stderr
 - --adapter_contexts : Output adapter contexts within the top ten numbers in report.txt; if you use this option, the program becomes slower.
+- --adapter_min_bp : Determine the mininal length of output adapter contexts within the top 50 numbers in report.txt, 10 bp by default; Only for the option: adapter_contexts
 
 
 #### Single-end adapter trimming [this funciton is adapted from: https://github.com/vsbuffalo/scythe]
