@@ -32,6 +32,7 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 include (${CMAKE_ROOT}/Modules/FindBoost.cmake)
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin )
 
 #boost
 set(Boost_USE_STATIC_LIBS        OFF)
@@ -43,18 +44,19 @@ find_package( ZLIB )
 #find_package( CURL )
 
 if(Boost_FOUND AND Threads_FOUND AND ZLIB_FOUND)
-	include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ) 
+    include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/src ) 
+    add_library( IhandlerFactory STATIC ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory.cpp )
+    add_library( thread STATIC ${CMAKE_SOURCE_DIR}/src/ThreadPool/thread_adapter.cpp ${CMAKE_SOURCE_DIR}/src/ThreadPool/thread_pool.cpp )
 # add the executable
-	add_executable(bin/PEAT src/main.cpp)
+    add_executable(PEAT src/main.cpp)
 #Static linux
-#	add_executable(bin/PEAT_linux_new src/main.cpp)
 	add_definitions(-DmyALPHABET)
 	if (LINUX)
 		message ("Your operating system is Linux...")
-		target_link_libraries( bin/PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory.a )
+        target_link_libraries( PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} IhandlerFactory thread )
 #		target_link_libraries( bin/PEAT_linux ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory.a )
 	elseif (MACOSX)
 		message ("Your operating system is MacOSX...")
-		target_link_libraries( bin/PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CMAKE_SOURCE_DIR}/src/ThreadPool/libthread_mac.a ${CMAKE_SOURCE_DIR}/src/iohandler/ihandler/IhandlerFactory_mac.a )
+        target_link_libraries( PEAT ${Boost_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} IhandlerFactory thread )
 	endif()
 endif()
