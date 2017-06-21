@@ -4,9 +4,9 @@ PEAT, a fast and highly accurate adapter-trimming algorithm, designed specifical
 
 PEAT is released under GPLv2 with additional restriction so that is only applicable to individuals and non-profits and that any for-profit company must purchase a different license.
 
-##INSTALL
+## INSTALL
 
-*Only 64 bits systems are able to compile and run PEAT. 
+* Only 64 bits systems are able to compile and run PEAT. 
 
 #### Run the binary directly without installation 
 
@@ -54,7 +54,7 @@ cmake .
 make
 ```
 
-##USAGE
+## USAGE
 
 #### Paired-end adapter trimming
 
@@ -93,15 +93,19 @@ bin/PEAT single -i <file> -a <string> -q <string> -o <output> -n <num>
 - -t :The threshold value of the quality trimmer, 30.0 by default
 - --verbose : Output running process by stderr 
 
-##Citing PEAT
+## Citing PEAT
 Li, Y.-L., Weng, J.-C., Hsiao, C.-C., Chou, M.-T., Tseng, C.-W., & Hung, J.-H. (2015). PEAT: an intelligent and efficient paired-end sequencing adapter trimming algorithm. BMC Bioinformatics, 16(Suppl 1), S2. doi:10.1186/1471-2105-16-S1-S2
 
-##Download the Simulation Datasets
+## Download the Simulation Datasets
 
-- http://www.jhhlab.tw/Simulation_Datasets/
+- http://www.jhhlab.tw/Simulation\_Datasets/
 
-##Contact
+## Contact
 	Jui-Hung Hung <juihunghung@gmail.com>
+
 	Yun-Lung Li <obigbando@gmail.com>
-	Jui-Cheng Weng <johnny231949@gmail.com>
-	Chiung-Po Hsiao <restart0216s@gmail.com>
+	
+    Jui-Cheng Weng <johnny231949@gmail.com>
+	
+    Chiung-Po Hsiao <restart0216s@gmail.com>
+    
