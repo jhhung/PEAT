@@ -25,8 +25,10 @@ install:
   - cd ..
   - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
   - tar -xvzf boost_1_64_0.tar.gz
+  - cd boost_1_64_0
   - ./bootstrap.sh 
   - ./b2 install
+  - cd ..
 
 script:
   - mkdir build
