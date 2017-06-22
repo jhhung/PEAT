@@ -34,6 +34,8 @@ install:
   # - cd ..
 
 script:
+  - rm -rf build 
+  - rm -rf bin
   - mkdir build
   - cd build
   - ${DEPS_DIR}/cmake/bin/cmake .. && make 
