@@ -98,7 +98,7 @@ Li, Y.-L., Weng, J.-C., Hsiao, C.-C., Chou, M.-T., Tseng, C.-W., & Hung, J.-H. (
 
 ## Download the Simulation Datasets
 
-- http://www.jhhlab.tw/Simulation\_Datasets/
+- http://www.jhhlab.tw/Simulation_Datasets/
 
 ## Contact
 	Jui-Hung Hung <juihunghung@gmail.com>
