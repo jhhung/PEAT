@@ -24,10 +24,10 @@ install:
   # Go to the Root directory  
   - cd ..
   - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
-  - tar -xvzf boost_1_64_0.tar.gz
+  - tar -xvzf boost_1_64_0.tar.gz &> /dev/null
   - cd boost_1_64_0
-  - ./bootstrap.sh 
-  - ./b2 install
+  - ./bootstrap.sh &> /dev/null
+  - ./b2 install &> /dev/null
   - cd ..
 
 script:
