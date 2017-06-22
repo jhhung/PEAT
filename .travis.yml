@@ -6,8 +6,10 @@ matrix:
         apt:
           packages:
             - g++-6
+            - libboost1.55-all-dev
           sources:
             - ubuntu-toolchain-r-test
+
 git:
 install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
@@ -23,12 +25,12 @@ install:
   
   # Go to the Root directory  
   - cd ..
-  - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
-  - tar -xzf boost_1_64_0.tar.gz
-  - cd boost_1_64_0
-  - ./bootstrap.sh
-  - ./b2 -d0 install
-  - cd ..
+  #  - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
+  #  - tar -xzf boost_1_64_0.tar.gz
+  #  - cd boost_1_64_0
+  #  - ./bootstrap.sh
+  #  - ./b2 -d0 install
+  #  - cd ..
 
 script:
   - mkdir build
