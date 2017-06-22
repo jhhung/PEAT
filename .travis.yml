@@ -1,0 +1,41 @@
+language: cpp
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          packages:
+            - g++-6
+            - libboost1.55-all-dev
+          sources:
+            - ubuntu-toolchain-r-test
+            - boost-latest
+
+git:
+install:
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      CMAKE_URL="http://www.cmake.org/files/v3.3/cmake-3.3.2-Linux-x86_64.tar.gz"
+      mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+    fi
+  - cd ..
+  
+  # Go to the Root directory  
+  # - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
+  # - tar -xzf boost_1_64_0.tar.gz
+  # - cd boost_1_64_0
+  # - ./bootstrap.sh
+  # - ./b2 -d0 -j4 install --prefix=${DEPS_DIR}/boost
+  # - cd ..
+
+script:
+  - rm -rf build 
+  - rm -rf bin
+  - mkdir build
+  - cd build
+  - ${DEPS_DIR}/cmake/bin/cmake .. && make 

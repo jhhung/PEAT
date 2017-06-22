@@ -1,5 +1,7 @@
 PEAT
 =========
+[![Build Status](https://travis-ci.org/CHChang810716/PEAT.svg?branch=master)](https://travis-ci.org/CHChang810716/PEAT)
+
 PEAT, a fast and highly accurate adapter-trimming algorithm, designed specifically for paired-end sequencing. PEAT requires no a priori adapter sequence and significantly outperforms other widely used adapter trimmers in both simulated and real life paired-end sequencing libraries. Moreover, in order to process single-end sequencing data, we also provide single-end trimmer in PEAT.
 
 PEAT is released under GPLv2 with additional restriction so that is only applicable to individuals and non-profits and that any for-profit company must purchase a different license.
