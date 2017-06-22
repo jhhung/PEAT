@@ -6,7 +6,7 @@ matrix:
         apt:
           packages:
             - g++-6
-            - libboost1.55-all-dev
+            - libboost-all-dev
           sources:
             - ubuntu-toolchain-r-test
 
