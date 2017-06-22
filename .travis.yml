@@ -9,10 +9,6 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 git:
-  submodules: false
-before_install:
-  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-  - git submodule update --init --recursive
 install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
@@ -27,6 +23,10 @@ install:
   
   # Go to the Root directory  
   - cd ..
+  - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
+  - tar -xvzf boost_1_64_0.tar.gz
+  - ./bootstrap.sh 
+  - ./b2 install
 
 script:
   - mkdir build
