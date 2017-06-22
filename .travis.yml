@@ -6,8 +6,10 @@ matrix:
         apt:
           packages:
             - g++-6
+            - libboost1.55-all-dev
           sources:
             - ubuntu-toolchain-r-test
+            - boost-latest
 
 git:
 install:
@@ -21,17 +23,17 @@ install:
       mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
       export PATH=${DEPS_DIR}/cmake/bin:${PATH}
     fi
+  - cd ..
   
   # Go to the Root directory  
-  - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
-  - tar -xzf boost_1_64_0.tar.gz
-  - cd boost_1_64_0
-  - ./bootstrap.sh
-  - ./b2 -d0 -j4 install --prefix=${DEPS_DIR}/boost
-  - cd ..
-  - cd ..
+  # - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
+  # - tar -xzf boost_1_64_0.tar.gz
+  # - cd boost_1_64_0
+  # - ./bootstrap.sh
+  # - ./b2 -d0 -j4 install --prefix=${DEPS_DIR}/boost
+  # - cd ..
 
 script:
   - mkdir build
   - cd build
-  - ${DEPS_DIR}/cmake/bin/cmake .. -DBOOST_ROOT=${DEPS_DIR}/boost && make 
+  - ${DEPS_DIR}/cmake/bin/cmake .. && make 
