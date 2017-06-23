@@ -77,7 +77,7 @@ removed FastQ format output files (dual files).
 				("out_gzip", "Compress the FASTQ output to Gzip file. This option is required the option: -o or --output_1/--output_2")
 				("verbose", "Output running process by stderr")
 				("adapter_contexts", "Output adapter contexts within the top ten numbers in report.txt; You can use the option: adapter_min_bp to select adapter what you want; if you use this option, the program becomes slower.")
-				("adapter_min_bp", boost::program_options::value<int>(&adapter_min_bp)->default_value(10), "Determine the mininal length of output adapter contexts within the top 50 numbers in report.txt, 10 bp by default; Required the option: adapter_contexts")
+				("adapter_min_bp", "Determine the mininal length of output adapter contexts within the top 50 numbers in report.txt, 10 bp by default; Required the option: adapter_contexts")
 				;
 			boost::program_options::variables_map vm;
 			boost::program_options::store (boost::program_options::parse_command_line(argc, argv, opts), vm);
@@ -104,7 +104,10 @@ removed FastQ format output files (dual files).
 			/** check the adapter_contexts**/
 
 			if ( vm.count("adapter_contexts") )
+			{
 				adapter_contexts_flag = true;
+				adapter_min_bp = 10;
+			}
 			else;
 			/** check the adapter_min_bp**/
 			if ( vm.count("adapter_min_bp") )
