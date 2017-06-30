@@ -207,12 +207,6 @@ removed FastQ format output files (dual files).
 				out = new std::ofstream {outputFile+"_paired1.gz"};
 				out_2 = new std::ofstream {outputFile+"_paired2.gz"};
 
-				out_gzip = new boost::iostreams::filtering_ostream();
-				out_gzip->push(boost::iostreams::gzip_compressor());
-				out_gzip->push(*out); 
-				out2_gzip = new boost::iostreams::filtering_ostream();
-				out2_gzip->push(boost::iostreams::gzip_compressor());
-				out2_gzip->push(*out_2); 
 			}
 
 			if (!*out || !*out_2) 
@@ -224,9 +218,15 @@ removed FastQ format output files (dual files).
 		else
 		{
 			///不需要ogzip的判斷：名字由使用者自己取
-			out = new std::ofstream {outputFile_1};
-			out_2 = new std::ofstream {outputFile_2};
+			out = new std::ofstream {outputFile_1+".gz"};
+			out_2 = new std::ofstream {outputFile_2+".gz"};
 			
+				out_gzip = new boost::iostreams::filtering_ostream();
+				out_gzip->push(boost::iostreams::gzip_compressor());
+				out_gzip->push(*out); 
+				out2_gzip = new boost::iostreams::filtering_ostream();
+				out2_gzip->push(boost::iostreams::gzip_compressor());
+				out2_gzip->push(*out_2); 
 			if (!*out || !*out_2) 
 			{
 				std::cerr << "Error: cannot creat output file " << outputFile_1+" and " << outputFile_2 << ".\nPlease double check.\nExiting..." << std::endl;
