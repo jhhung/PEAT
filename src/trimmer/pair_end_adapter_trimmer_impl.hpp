@@ -366,6 +366,9 @@ protected:
  */
 	void RC_Compare ( std::map < int, std::vector< FORMAT<TUPLETYPE> > >* result2, std::vector<size_t>& trim_impl_result1, std::vector<size_t>& trim_impl_result2, size_t itr, size_t mask ) 
 	{
+		if(std::get<1>( ((*result2)[0][itr]).data ).size() <= mask)
+			mask = std::get<1>( ((*result2)[0][itr]).data ).size();
+		else ;                                                                                                                                                                                                                           
 		boost::iterator_range <std::string::iterator> rcstr_1 
 			( std::get<1>( ((*result2)[0][itr]).data ).begin(), std::get<1>( ((*result2)[0][itr]).data ).begin()+mask );
 		boost::iterator_range <std::string::iterator> read_2 
