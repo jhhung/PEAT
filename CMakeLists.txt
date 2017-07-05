@@ -3,7 +3,7 @@ project (PEAT)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS "-O0 -g -std=c++11")
+set(CMAKE_CXX_FLAGS "-Ofast -g -std=c++11")
 #For static in linux
 #set(CMAKE_CXX_FLAGS "-static -Ofast -std=c++11 -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
 #For cgdb
