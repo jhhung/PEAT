@@ -57,7 +57,9 @@ cmake .
 make
 ```
 
+
 ## USAGE
+
 
 #### Paired-end adapter trimming
 
@@ -65,8 +67,8 @@ make
 bin/PEAT paired -1 <file> -2 <file> -o <output> -n <num> -l <num> -r <num> -g <num> -a <num>
 ```
 
-- -1 : The paired_1 input FastQ file.
-- -2 : The paired_2 input FastQ file.
+- -1 : The paired_1 input FastQ/FastA file.
+- -2 : The paired_2 input FastQ/FastA file.
 - -o : Prefix for Output file name, stdout by default
 - -n : Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
 - -l : Minimum gene fragment length, i.e. the fragment length for reverse complement check, 30 bp by default
@@ -87,9 +89,9 @@ bin/PEAT paired -1 <file> -2 <file> -o <output> -n <num> -l <num> -r <num> -g <n
 bin/PEAT single -i <file> -a <string> -q <string> -o <output> -n <num>
 ```
 
-- -i : The input FastQ file.
+- -i : The input FastQ/FastA file.
 - -a : The adapter sequence, with minimum length of six characters.
-- -q : The quality type of input FastQ file. (Acceptable quality type : 1.PHRED 2.SANGER 3.SOLEXA 4.ILLUMINA)
+- -q : The quality type of input FastQ file. (Acceptable quality type : 1.PHRED 2.SANGER 3.SOLEXA 4.ILLUMINA, defulat: ILLUMINA)
 - -o : Output fastq file, stdout by default
 - -n : Number of thread to use; if the number is larger than the core available, it will be adjusted automatically.
 - --qtrim : Quality trimmer; trim the last base of the reads until the mean score is larger than threshold.

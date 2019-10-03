@@ -26,8 +26,8 @@ namespace paired_end
 +----------+
 
 A software do paired-end adapter trimming operation.
-It takes paired-end FastQ format input files (dual files), and reports adapter 
-removed FastQ format output files (dual files).
+It takes paired-end FastQ/FastA format input files (dual files), and reports adapter 
+removed FastQ/FastA format output files (dual files).
 
 >> PEAT paired
     Do paired-end adapter trimming operation with instruction like:

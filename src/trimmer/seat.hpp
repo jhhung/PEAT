@@ -20,7 +20,7 @@ namespace single_end
 +----------+
 
   A software using Naive Bayes classifier to do single-end adapter trimming operation.
-  It takes FastQ format input file, and reports adapter removed FastQ format output file.
+  It takes FastQ/FastA format input file, and reports adapter removed FastQ/FastA format output file.
   
 >> PEAT single
     Do single-end adapter trimming operation, with instruction like: 
@@ -46,7 +46,7 @@ namespace single_end
 				("help,h", "display this help message and exit")
 				("input,i", boost::program_options::value<std::string>(&inputFile)->required(), "The input FastQ file (.fq) or Gzip compressed FASTQ file (.fq.gz).")
 				("adapter,a", boost::program_options::value<std::string>(&adapterSeq)->required(), "The adapter sequence, with minimum length of six characters.")
-				("quality,q", boost::program_options::value<std::string>(&qualityType)->required(), "The quality type. Type any one of the following quality type indicator: ILLUMINA, PHRED, SANGER, SOLEXA")
+				("quality,q", boost::program_options::value<std::string>(&qualityType)->default_value("ILLUMINA"), "The quality type. Type any one of the following quality type indicator: ILLUMINA, PHRED, SANGER, SOLEXA (default: ILLUMINA)")
 				("output,o", boost::program_options::value<std::string>(&outputFile)->default_value(std::string {"stdout"}), "Output FastQ file, stdout by default ")			
 				("thread,n", boost::program_options::value<int>(&nthreads)->default_value(1), "Number of thread to use; if the number is larger than the core available, it will be adjusted automatically")
 				("qtrim", "Quality trimmer; trim the last base of the reads until the mean score is larger than threshold")
